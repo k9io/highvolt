@@ -53,7 +53,7 @@ Highvolt has two main components:
 
 | Client | Description |
 |---|---|
-| **Voltage** | Scans traditional file systems on endpoints. Runs as a system service on Linux, macOS, and Windows. |
+| **Voltage** | Scans traditional file systems on endpoints. Can run as a persistent agent (system service on Linux, macOS, and Windows) or agent-less via a scheduled task using the `--once` flag. |
 | **Suricata** | Integrates with the Suricata IDS to capture and analyze files observed on the network. Uses Redis for pub/sub queuing. |
 | **aws-s3** | Batch scans every S3 bucket across an entire AWS Organization for sensitive data. Runs once and exits. |
 | **aws-s3-lambda** | Real-time S3 monitoring via AWS Lambda. Deployed with Terraform; fires on S3 object-created events across all member accounts. |
