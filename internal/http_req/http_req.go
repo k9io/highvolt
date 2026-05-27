@@ -1,0 +1,88 @@
+/*
+** Copyright (C) 2026 Key9, Inc <k9.io>
+** Copyright (C) 2026 Champ Clark III <cclark@k9.io>
+**
+** This file is part of the HighVolt JSON analysis engine
+**
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU Affero General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU Affero General Public License for more details.
+**
+** You should have received a copy of the GNU Affero General Public License
+** along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package http_req
+
+import (
+	"bytes"
+	"crypto/tls"
+	"fmt"
+	"io"
+	"net/http"
+	"time"
+
+	"github.com/k9io/highvolt/internal/define"
+)
+
+var httpClient = &http.Client{Timeout: 30 * time.Second}
+
+func Configure(skipVerify bool) {
+	if skipVerify {
+		httpClient = &http.Client{
+			Timeout: 30 * time.Second,
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			},
+		}
+	} else {
+		httpClient = &http.Client{Timeout: 30 * time.Second}
+	}
+}
+
+func HTTP(json_data string, url string, http_type string, bearer_token string) (string, int, error) {
+
+	req, err := http.NewRequest(http_type, url, bytes.NewBuffer([]byte(json_data)))
+
+	if err != nil {
+
+		return "", 0, fmt.Errorf("Unable to establish API connection: %v", err)
+
+	}
+
+	req.Header.Set("User-Agent", define.USER_AGENT)
+
+
+	if bearer_token != "" {
+
+		req.Header.Set("Authorization", "Bearer "+bearer_token)
+
+	}
+
+	res, err := httpClient.Do(req)
+
+	if err != nil {
+
+		return "", 0, fmt.Errorf("Unable to client.Do(): %v", err)
+
+	}
+
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+
+	if err != nil {
+
+		return "", 0, fmt.Errorf("Unable to get body from request: %v", err)
+
+	}
+
+	return string(body), res.StatusCode, nil 
+
+}

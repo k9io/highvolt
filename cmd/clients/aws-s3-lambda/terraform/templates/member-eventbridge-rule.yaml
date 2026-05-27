@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Highvolt - Forwards S3 object-creation CloudTrail events from this account
+  to the central Highvolt EventBridge event bus for PII analysis.
+
+Parameters:
+  CentralEventBusArn:
+    Type: String
+    Description: ARN of the central Highvolt EventBridge event bus
+
+Resources:
+
+  # IAM role that allows EventBridge to cross-account PutEvents
+  ForwarderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: highvolt-eventbridge-forwarder
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: PutEventsToCentralBus
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: events:PutEvents
+                Resource: !Ref CentralEventBusArn
+
+  # Rule: match S3 PutObject and CompleteMultipartUpload via CloudTrail,
+  # then forward to the central Highvolt event bus.
+  S3ObjectCreatedRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: highvolt-s3-object-created-forward
+      Description: >
+        Forward S3 object creation events (via CloudTrail) to the
+        Highvolt central event bus for org-wide PII scanning.
+      EventPattern:
+        source:
+          - aws.s3
+        detail-type:
+          - AWS API Call via CloudTrail
+        detail:
+          eventSource:
+            - s3.amazonaws.com
+          eventName:
+            - PutObject
+            - CompleteMultipartUpload
+      State: ENABLED
+      Targets:
+        - Id: CentralHighvoltBus
+          Arn: !Ref CentralEventBusArn
+          RoleArn: !GetAtt ForwarderRole.Arn
+
+Outputs:
+  RuleName:
+    Value: !Ref S3ObjectCreatedRule
+  ForwarderRoleArn:
+    Value: !GetAtt ForwarderRole.Arn
