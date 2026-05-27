@@ -70,10 +70,13 @@ Highvolt has two main components:
 
 | Type | Formats | How It's Analyzed |
 |---|---|---|
-| Images | JPEG, PNG, GIF, WebP | Submitted directly to the vision LLM |
+| Images | JPEG/JPG, PNG, WebP, GIF, BMP, TIFF, HEIC | Submitted directly to the vision LLM |
 | PDFs | PDF | Converted to PNG (one page at a time); stops at first PII detection |
-| Office documents | DOCX, XLSX, PPTX | Converted to PDF via LibreOffice, then to images |
-| Archives | ZIP, tar.gz, and more | Extracted recursively; each file analyzed by its type |
+| Documents | .doc, .docx, .rtf, .odt, .pages, .wpd | Converted to PDF via LibreOffice, then to images |
+| Spreadsheets | .xls, .xlsx, .ods, .numbers | Converted to PDF via LibreOffice, then to images |
+| Presentations | .ppt, .pptx, .odp, .key | Converted to PDF via LibreOffice, then to images |
+| Graphics | .vsd, .cdr, .pub, .svg | Converted to PDF via LibreOffice, then to images |
+| Archives | ZIP, TAR (and compressed variants), RAR (read-only), 7Z (read-only) | Extracted recursively; each file analyzed by its type |
 | Text | TXT, CSV | Submitted as plain text |
 
 ---
