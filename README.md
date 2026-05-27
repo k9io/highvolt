@@ -107,9 +107,9 @@ The following must be available before running `highvolt-server`:
 | Dependency | Purpose |
 |---|---|
 | [OpenSearch](https://opensearch.org/) | Stores analysis results |
-| [JSONAir](https://k9.io/) | Centralized configuration service (see [JSONAir](#jsonair)) |
+| [JSONAir](https://github.com/k9io/jsonair/) | Centralized configuration service (see [JSONAir](#jsonair)) |
 | OpenAI-compatible LLM endpoint | Performs PII analysis (see [Compatible LLM Backends](#compatible-llm-backends)) |
-| [LibreOffice](https://www.libreoffice.org/) | Converts Office documents to PDF |
+| [LibreOffice](https://www.libreoffice.org/) | Converts Office documents to PDF. Runs in a "headless" configuration |
 | `pdftoppm` or Ghostscript | Converts PDFs to images |
 
 For the **Suricata** client only: a running Redis instance is also required.
