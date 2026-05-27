@@ -1,3 +1,9 @@
+Join the Key9 Slack channel
+---------------------------
+
+[![Slack](./images/slack.png)](https://key9identity.slack.com/)
+
+
 # Highvolt
 
 **AI-powered Personally Identifiable Information (PII) detection for documents, endpoints, and cloud storage.**
