@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" width="960" height="560"
+     font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="a-blue" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="7" markerHeight="5" orient="auto">
+      <path d="M0 0L10 3.5L0 7z" fill="#3b82f6"/>
+    </marker>
+    <marker id="a-amber" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="7" markerHeight="5" orient="auto">
+      <path d="M0 0L10 3.5L0 7z" fill="#f59e0b"/>
+    </marker>
+    <marker id="a-green" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="7" markerHeight="5" orient="auto">
+      <path d="M0 0L10 3.5L0 7z" fill="#10b981"/>
+    </marker>
+    <marker id="a-purple" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="7" markerHeight="5" orient="auto">
+      <path d="M0 0L10 3.5L0 7z" fill="#a78bfa"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="560" fill="#0d1117"/>
+
+  <!-- Title -->
+  <text x="480" y="26" text-anchor="middle" font-size="13" font-weight="600" letter-spacing="3" fill="#4b5563">HIGHVOLT  ·  PII DETECTION SYSTEM</text>
+
+  <!-- DATA SOURCES label -->
+  <line x1="83"  y1="46" x2="365" y2="46" stroke="#1e3a5f" stroke-width="0.5"/>
+  <text x="480" y="50" text-anchor="middle" font-size="9" letter-spacing="2" fill="#1e3a5f">DATA SOURCES</text>
+  <line x1="595" y1="46" x2="877" y2="46" stroke="#1e3a5f" stroke-width="0.5"/>
+
+  <!-- ═══════════ CLIENT BOXES ═══════════ -->
+  <!-- 4 × 185px, 18px gap, start x=83     -->
+  <!-- centers: 175.5 / 378.5 / 581.5 / 784.5 -->
+
+  <!-- voltage -->
+  <rect x="83"  y="58" width="185" height="80" rx="8" fill="#0a192f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="175" y="84"  text-anchor="middle" font-size="15" font-weight="700" fill="#60a5fa">voltage</text>
+  <text x="175" y="101" text-anchor="middle" font-size="10" fill="#4b6a9e">Filesystem Scanner</text>
+  <text x="175" y="116" text-anchor="middle" font-size="9"  fill="#1e3a5f">local endpoint · GOB registry</text>
+  <text x="175" y="130" text-anchor="middle" font-size="9"  fill="#1e3a5f">SHA-256 dedup</text>
+
+  <!-- suricata -->
+  <rect x="286" y="58" width="185" height="80" rx="8" fill="#0a192f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="378" y="84"  text-anchor="middle" font-size="15" font-weight="700" fill="#60a5fa">suricata</text>
+  <text x="378" y="101" text-anchor="middle" font-size="10" fill="#4b6a9e">Network IDS Client</text>
+  <rect x="323" y="110" width="110" height="20" rx="10" fill="#2a0a0a" stroke="#ef4444" stroke-width="1"/>
+  <text x="378" y="124" text-anchor="middle" font-size="9" fill="#ef4444">Redis Pub/Sub</text>
+
+  <!-- aws-s3 -->
+  <rect x="489" y="58" width="185" height="80" rx="8" fill="#0a192f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="581" y="84"  text-anchor="middle" font-size="15" font-weight="700" fill="#60a5fa">aws-s3</text>
+  <text x="581" y="101" text-anchor="middle" font-size="10" fill="#4b6a9e">Batch S3 Scanner</text>
+  <text x="581" y="116" text-anchor="middle" font-size="9"  fill="#1e3a5f">cross-account access</text>
+  <text x="581" y="130" text-anchor="middle" font-size="9"  fill="#1e3a5f">S3-path GOB registry</text>
+
+  <!-- aws-s3-lambda -->
+  <rect x="692" y="58" width="185" height="80" rx="8" fill="#0a192f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="784" y="80"  text-anchor="middle" font-size="12" font-weight="700" fill="#60a5fa">aws-s3-lambda</text>
+  <text x="784" y="96"  text-anchor="middle" font-size="10" fill="#4b6a9e">Real-Time Lambda</text>
+  <text x="784" y="111" text-anchor="middle" font-size="9"  fill="#1e3a5f">CloudTrail → EventBridge</text>
+  <text x="784" y="126" text-anchor="middle" font-size="9"  fill="#1e3a5f">STS cross-account</text>
+
+  <!-- ═══════════ CONNECTION BUS ═══════════ -->
+  <!-- drops from y=138 to bus at y=172      -->
+  <line x1="175" y1="138" x2="175" y2="172" stroke="#1e40af" stroke-width="1.5"/>
+  <line x1="378" y1="138" x2="378" y2="172" stroke="#1e40af" stroke-width="1.5"/>
+  <line x1="581" y1="138" x2="581" y2="172" stroke="#1e40af" stroke-width="1.5"/>
+  <line x1="784" y1="138" x2="784" y2="172" stroke="#1e40af" stroke-width="1.5"/>
+  <!-- horizontal bus -->
+  <line x1="175" y1="172" x2="784" y2="172" stroke="#1e40af" stroke-width="1.5"/>
+  <!-- drop with arrow to server -->
+  <line x1="480" y1="172" x2="480" y2="220" stroke="#3b82f6" stroke-width="2" marker-end="url(#a-blue)"/>
+  <!-- label -->
+  <rect x="375" y="181" width="210" height="22" rx="4" fill="#0d1117"/>
+  <text x="480" y="196" text-anchor="middle" font-size="11" font-weight="600" fill="#2563eb">HTTPS  ·  JWT Bearer</text>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- HIGHVOLT-SERVER BOX  x=68  y=222  w=824  h=188     -->
+  <!--   bottom at y=410                                   -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <rect x="68" y="222" width="824" height="188" rx="10" fill="#080510" stroke="#6366f1" stroke-width="2"/>
+
+  <!-- server title -->
+  <text x="480" y="244" text-anchor="middle" font-size="16" font-weight="700" fill="#818cf8">highvolt-server</text>
+  <text x="480" y="260" text-anchor="middle" font-size="10" fill="#374151">Gin HTTP  ·  Worker Pool  ·  In-Memory Queue  ·  HAProxy  ·  Rate Limiter</text>
+
+  <!-- ── Internal component row  y=268–328 ── -->
+  <!-- 4 × 184px boxes, 15px gap, first at x=88 -->
+
+  <!-- API Routes  x=88 -->
+  <rect x="88"  y="268" width="184" height="60" rx="6" fill="#12103a" stroke="#4338ca" stroke-width="1"/>
+  <text x="180" y="286" text-anchor="middle" font-size="10" font-weight="600" fill="#818cf8">API Routes</text>
+  <text x="180" y="302" text-anchor="middle" font-size="9" fill="#6b7280">POST /submit → Queue</text>
+  <text x="180" y="316" text-anchor="middle" font-size="9" fill="#6b7280">POST /query → OpenSearch</text>
+
+  <!-- Auth / JWT  x=287 -->
+  <rect x="287" y="268" width="184" height="60" rx="6" fill="#12103a" stroke="#4338ca" stroke-width="1"/>
+  <text x="379" y="286" text-anchor="middle" font-size="10" font-weight="600" fill="#818cf8">Auth / JWT</text>
+  <text x="379" y="302" text-anchor="middle" font-size="9" fill="#6b7280">HMAC-SHA256 tokens</text>
+  <text x="379" y="316" text-anchor="middle" font-size="9" fill="#6b7280">auto re-auth on 401</text>
+
+  <!-- Queue  x=486 -->
+  <rect x="486" y="268" width="184" height="60" rx="6" fill="#12103a" stroke="#4338ca" stroke-width="1"/>
+  <text x="578" y="286" text-anchor="middle" font-size="10" font-weight="600" fill="#818cf8">Queue</text>
+  <text x="578" y="302" text-anchor="middle" font-size="9" fill="#6b7280">In-memory · async</text>
+  <text x="578" y="316" text-anchor="middle" font-size="9" fill="#6b7280">HTTP 503 when full</text>
+
+  <!-- Worker Pool  x=685 -->
+  <rect x="685" y="268" width="184" height="60" rx="6" fill="#12103a" stroke="#4338ca" stroke-width="1"/>
+  <text x="777" y="286" text-anchor="middle" font-size="10" font-weight="600" fill="#818cf8">Worker Pool</text>
+  <text x="777" y="302" text-anchor="middle" font-size="9" fill="#6b7280">Goroutines (max_workers)</text>
+  <text x="777" y="316" text-anchor="middle" font-size="9" fill="#6b7280">MIME-type routing</text>
+
+  <!-- ── Processors row ── -->
+  <!-- label -->
+  <text x="480" y="346" text-anchor="middle" font-size="8" letter-spacing="2" fill="#374151">PROCESSORS</text>
+
+  <!-- 5 × 100px pills, 13px gap → 552px total, start x=204 -->
+  <rect x="204" y="353" width="100" height="26" rx="13" fill="#12103a" stroke="#4f46e5" stroke-width="1"/>
+  <text x="254" y="370" text-anchor="middle" font-size="10" fill="#a5b4fc">IMAGE</text>
+
+  <rect x="317" y="353" width="100" height="26" rx="13" fill="#12103a" stroke="#4f46e5" stroke-width="1"/>
+  <text x="367" y="370" text-anchor="middle" font-size="10" fill="#a5b4fc">TEXT</text>
+
+  <rect x="430" y="353" width="100" height="26" rx="13" fill="#12103a" stroke="#4f46e5" stroke-width="1"/>
+  <text x="480" y="370" text-anchor="middle" font-size="10" fill="#a5b4fc">PDF</text>
+
+  <rect x="543" y="353" width="100" height="26" rx="13" fill="#12103a" stroke="#4f46e5" stroke-width="1"/>
+  <text x="593" y="370" text-anchor="middle" font-size="10" fill="#a5b4fc">OFFICE</text>
+
+  <rect x="656" y="353" width="100" height="26" rx="13" fill="#12103a" stroke="#4f46e5" stroke-width="1"/>
+  <text x="706" y="370" text-anchor="middle" font-size="10" fill="#a5b4fc">ARCHIVE</text>
+
+  <!-- server bottom at y=410 -->
+
+  <!-- ═══════════ ARROWS  server → backends ═══════════ -->
+  <!-- backends at y=450: LLM ctr=260, OpenSearch ctr=480, JSONAir ctr=700 -->
+
+  <!-- LLM: bidirectional (analyze file down, PII verdict up) -->
+  <line x1="256" y1="410" x2="256" y2="448" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#a-amber)"/>
+  <line x1="264" y1="450" x2="264" y2="412" stroke="#f59e0b" stroke-width="1"   stroke-dasharray="3,2" marker-end="url(#a-amber)"/>
+  <text x="276" y="430" font-size="8" fill="#92400e">analyze file</text>
+  <text x="276" y="441" font-size="8" fill="#92400e">PII verdict ↑</text>
+
+  <!-- OpenSearch: index results -->
+  <line x1="480" y1="410" x2="480" y2="448" stroke="#10b981" stroke-width="1.5" marker-end="url(#a-green)"/>
+  <text x="492" y="432" font-size="8" fill="#065f46">index results</text>
+
+  <!-- JSONAir: config polling (dashed) -->
+  <line x1="700" y1="410" x2="700" y2="448" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#a-purple)"/>
+  <text x="712" y="430" font-size="8" fill="#5b21b6">config</text>
+  <text x="712" y="441" font-size="8" fill="#5b21b6">polling</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- EXTERNAL SERVICE BOXES                          -->
+  <!-- y=450  h=72  w=195                              -->
+  <!-- LLM x=163  OpenSearch x=383  JSONAir x=603      -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- LLM -->
+  <rect x="163" y="450" width="195" height="72" rx="8" fill="#1a0800" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="260" y="474" text-anchor="middle" font-size="15" font-weight="700" fill="#fbbf24">LLM</text>
+  <text x="260" y="491" text-anchor="middle" font-size="10" fill="#92400e">OpenAI-compatible API</text>
+  <text x="260" y="507" text-anchor="middle" font-size="9"  fill="#78350f">POST /chat/completions</text>
+
+  <!-- OpenSearch -->
+  <rect x="383" y="450" width="195" height="72" rx="8" fill="#001a0a" stroke="#10b981" stroke-width="1.5"/>
+  <text x="480" y="474" text-anchor="middle" font-size="15" font-weight="700" fill="#34d399">OpenSearch</text>
+  <text x="480" y="491" text-anchor="middle" font-size="10" fill="#065f46">Results Storage</text>
+  <text x="480" y="507" text-anchor="middle" font-size="9"  fill="#044d37">keyed by SHA-256 hash</text>
+
+  <!-- JSONAir -->
+  <rect x="603" y="450" width="195" height="72" rx="8" fill="#0d0019" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="700" y="474" text-anchor="middle" font-size="15" font-weight="700" fill="#c4b5fd">JSONAir</text>
+  <text x="700" y="491" text-anchor="middle" font-size="10" fill="#6d28d9">Config Service</text>
+  <text x="700" y="507" text-anchor="middle" font-size="9"  fill="#5b21b6">PAT auth · hot-reload polling</text>
+
+  <!-- Footer -->
+  <text x="480" y="543" text-anchor="middle" font-size="8" fill="#1e293b">* All components (clients + server) fetch configuration from JSONAir on startup and automatically hot-reload on changes</text>
+  <text x="30"  y="555" font-size="8" fill="#1e293b">© Key9, Inc · k9.io · 2026</text>
+
+</svg>

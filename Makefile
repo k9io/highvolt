@@ -72,6 +72,8 @@ voltage-pkg:
 	mkdir -p $(PKG_STAGE)/payload/usr/local/bin
 	mkdir -p $(PKG_STAGE)/scripts
 	cp $(BINARY_DIR)/voltage $(PKG_STAGE)/payload/usr/local/bin/voltage
+	mkdir -p $(PKG_STAGE)/payload/etc/voltage
+	cp cmd/clients/voltage/.env $(PKG_STAGE)/payload/etc/voltage/.env
 	cp pkg/voltage/postinstall $(PKG_STAGE)/scripts/postinstall
 	chmod +x $(PKG_STAGE)/scripts/postinstall
 	@echo "Building voltage-$(PKG_VERSION).pkg..."
@@ -80,7 +82,12 @@ voltage-pkg:
 	         --identifier io.k9.voltage \
 	         --version $(PKG_VERSION) \
 	         --install-location / \
-	         $(BINARY_DIR)/voltage-$(PKG_VERSION).pkg
+	         $(PKG_STAGE)/voltage-component.pkg
+	sed 's/VERSION_PLACEHOLDER/$(PKG_VERSION)/' pkg/voltage/distribution.xml > $(PKG_STAGE)/distribution.xml
+	productbuild --distribution $(PKG_STAGE)/distribution.xml \
+	             --package-path $(PKG_STAGE) \
+	             --resources pkg/voltage \
+	             $(BINARY_DIR)/voltage-$(PKG_VERSION).pkg
 	@echo "Done: $(BINARY_DIR)/voltage-$(PKG_VERSION).pkg"
 
 # Clean up build artifacts
