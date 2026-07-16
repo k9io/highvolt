@@ -57,19 +57,17 @@ func Query(c *gin.Context) {
 
 	l.Logger(l.INFO, "Query for %s from %s.", sha256, c.ClientIP())
 
-	output, err := db.SearchBySHA256(sha256)
+	found, err := db.SearchBySHA256(sha256)
 
 	if err != nil {
 
-		l.Logger(l.ERROR, "OpenSearch query failed for %s: %v", sha256, err)
+		l.Logger(l.ERROR, "Storage backend query failed for %s: %v", sha256, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Query failed"})
 		return
 
 	}
 
-	hits := gjson.Get(output, "hits.total.value").Int()
-
-	if hits == 0 {
+	if !found {
 
 		l.Logger(l.INFO, "Sample %s has never been analyzed. [%s].", sha256, c.ClientIP())
 

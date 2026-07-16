@@ -36,7 +36,10 @@ type Config_Struct struct {
 	Core               Core_Struct               `json:"core"`
 	HTTP               HTTP_Struct               `json:"http"`
 	Syslog             Syslog_Struct             `json:"syslog"`
+	Write_Backends     []string                  `json:"write_backends"`  // one or more of "opensearch", "openobserve"
+	Query_Backend      string                    `json:"query_backend"`   // "opensearch" or "openobserve"
 	Opensearch         Opensearch_Struct         `json:"opensearch"`
+	OpenObserve        OpenObserve_Struct        `json:"openobserve"`
 	LLM                LLM_Struct                `json:"llm"`
 	Export_Directories Export_Directories_Struct `json:"export_directories"`
 	Export_Commands    Export_Commands_Struct    `json:"export_commands"`
@@ -90,6 +93,15 @@ type Opensearch_Struct struct {
 	Password        string `json:"password"`
 	URL             string `json:"url"`
 	Index           string `json:"index"`
+	TLS_Skip_Verify bool   `json:"tls_skip_verify"`
+}
+
+type OpenObserve_Struct struct {
+	Username        string `json:"username"`
+	Password        string `json:"password"`
+	URL             string `json:"url"`
+	Organization    string `json:"organization"`
+	Stream          string `json:"stream"`
 	TLS_Skip_Verify bool   `json:"tls_skip_verify"`
 }
 

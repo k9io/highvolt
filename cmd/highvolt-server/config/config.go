@@ -86,6 +86,9 @@ func Load_Config(configJSON string) {
 	models.C.HTTP.Mode = "production"
 	models.C.HTTP.TLS = false
 
+	models.C.Write_Backends = []string{"opensearch"}
+	models.C.Query_Backend = "opensearch"
+
 	models.C.Syslog.Host = "local"
 	models.C.Syslog.Proto = "tcp"
 
@@ -176,31 +179,127 @@ func Load_Config(configJSON string) {
 
 	}
 
-	if models.C.Opensearch.Username == "" {
+	/* --- Storage backends --- */
 
-		l.Logger(l.ERROR, "Missing 'opensearch.username'.")
+	if len(models.C.Write_Backends) == 0 {
+
+		l.Logger(l.ERROR, "Missing 'write_backends'. Must list one or more of 'opensearch', 'openobserve'.")
 		os.Exit(1)
 
 	}
 
-	if models.C.Opensearch.Password == "" {
+	validBackend := func(name string) bool {
+		return name == "opensearch" || name == "openobserve"
+	}
 
-		l.Logger(l.ERROR, "Missing 'opensearch.password'.")
+	neededBackends := map[string]bool{}
+
+	for _, b := range models.C.Write_Backends {
+
+		if !validBackend(b) {
+
+			l.Logger(l.ERROR, "Invalid 'write_backends' entry '%s'. Must be 'opensearch' or 'openobserve'.", b)
+			os.Exit(1)
+
+		}
+
+		neededBackends[b] = true
+
+	}
+
+	if !validBackend(models.C.Query_Backend) {
+
+		l.Logger(l.ERROR, "Invalid 'query_backend' value '%s'. Must be 'opensearch' or 'openobserve'.", models.C.Query_Backend)
 		os.Exit(1)
 
 	}
 
-	if models.C.Opensearch.URL == "" {
+	neededBackends[models.C.Query_Backend] = true
 
-		l.Logger(l.ERROR, "Missing 'opensearch.url'.")
-		os.Exit(1)
+	queryBackendIsWritten := false
+
+	for _, b := range models.C.Write_Backends {
+
+		if b == models.C.Query_Backend {
+			queryBackendIsWritten = true
+		}
 
 	}
 
-	if models.C.Opensearch.Index == "" {
+	if !queryBackendIsWritten {
 
-		l.Logger(l.ERROR, "Missing 'opensearch.index'.")
-		os.Exit(1)
+		l.Logger(l.WARN, "'query_backend' (%s) is not in 'write_backends' (%v) -- newly analyzed documents won't be visible to queries until this is corrected.", models.C.Query_Backend, models.C.Write_Backends)
+
+	}
+
+	if neededBackends["opensearch"] {
+
+		if models.C.Opensearch.Username == "" {
+
+			l.Logger(l.ERROR, "Missing 'opensearch.username'.")
+			os.Exit(1)
+
+		}
+
+		if models.C.Opensearch.Password == "" {
+
+			l.Logger(l.ERROR, "Missing 'opensearch.password'.")
+			os.Exit(1)
+
+		}
+
+		if models.C.Opensearch.URL == "" {
+
+			l.Logger(l.ERROR, "Missing 'opensearch.url'.")
+			os.Exit(1)
+
+		}
+
+		if models.C.Opensearch.Index == "" {
+
+			l.Logger(l.ERROR, "Missing 'opensearch.index'.")
+			os.Exit(1)
+
+		}
+
+	}
+
+	if neededBackends["openobserve"] {
+
+		if models.C.OpenObserve.Username == "" {
+
+			l.Logger(l.ERROR, "Missing 'openobserve.username'.")
+			os.Exit(1)
+
+		}
+
+		if models.C.OpenObserve.Password == "" {
+
+			l.Logger(l.ERROR, "Missing 'openobserve.password'.")
+			os.Exit(1)
+
+		}
+
+		if models.C.OpenObserve.URL == "" {
+
+			l.Logger(l.ERROR, "Missing 'openobserve.url'.")
+			os.Exit(1)
+
+		}
+
+		if models.C.OpenObserve.Organization == "" {
+
+			l.Logger(l.ERROR, "Missing 'openobserve.organization'.")
+			os.Exit(1)
+
+		}
+
+		if models.C.OpenObserve.Stream == "" {
+
+			l.Logger(l.ERROR, "Missing 'openobserve.stream'.")
+			os.Exit(1)
+
+		}
 
 	}
 

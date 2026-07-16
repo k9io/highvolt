@@ -33,7 +33,7 @@ import (
 	"github.com/opensearch-project/opensearch-go/v2"
 	"github.com/opensearch-project/opensearch-go/v2/opensearchapi"
 
-	//	"github.com/tidwall/gjson"
+	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 
 	"github.com/k9io/highvolt/cmd/highvolt-server/debug"
@@ -43,6 +43,8 @@ import (
 )
 
 var Opensearch_Client *opensearch.Client
+
+type opensearchStore struct{}
 
 func Init_Opensearch() {
 
@@ -72,7 +74,7 @@ func Init_Opensearch() {
 
 }
 
-func Index_Document(document_id string, json_data string) error {
+func (opensearchStore) IndexDocument(document_id string, json_data string) error {
 
 	var err error
 
@@ -128,7 +130,7 @@ func Index_Document(document_id string, json_data string) error {
 
 /* DEBUG: This needs to support MD5, SHA1 and SHA256 */
 
-func SearchBySHA256(sha256 string) (string, error) {
+func (opensearchStore) SearchBySHA256(sha256 string) (bool, error) {
 
 	if debug.X.Opensearch == true {
 
@@ -148,7 +150,7 @@ func SearchBySHA256(sha256 string) (string, error) {
 	queryBytes, err := json.Marshal(queryDoc)
 	if err != nil {
 		l.Logger(l.ERROR, "Error marshaling search query: %v", err)
-		return "", err
+		return false, err
 	}
 
 	searchReq := opensearchapi.SearchRequest{
@@ -163,7 +165,7 @@ func SearchBySHA256(sha256 string) (string, error) {
 	if err != nil {
 
 		l.Logger(l.ERROR, "Error executing search: %v", err)
-		return "", err
+		return false, err
 
 	}
 
@@ -172,7 +174,7 @@ func SearchBySHA256(sha256 string) (string, error) {
 	if err != nil {
 
 		l.Logger(l.ERROR, "Cannot read response body from Opensearch: %v", err)
-		return "", err
+		return false, err
 
 	}
 
@@ -183,20 +185,21 @@ func SearchBySHA256(sha256 string) (string, error) {
 		if res.StatusCode == 404 {
 
 			l.Logger(l.WARN, "Index '%s' not found. No worries.....", models.C.Opensearch.Index)
-
-		} else {
-
-			l.Logger(l.WARN, "Opensearch returned status of %v", res.StatusCode)
+			return false, nil
 
 		}
-	}
 
+		l.Logger(l.WARN, "Opensearch returned status of %v", res.StatusCode)
+
+	}
 
 	if debug.X.Opensearch == true {
 
-	l.Logger(l.DEBUG, "Return from Opensearch for SHA256 %s: %s", sha256, sb)
+		l.Logger(l.DEBUG, "Return from Opensearch for SHA256 %s: %s", sha256, sb)
 
 	}
 
-	return sb, nil
+	hits := gjson.Get(sb, "hits.total.value").Int()
+
+	return hits > 0, nil
 }

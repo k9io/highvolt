@@ -41,7 +41,8 @@ import (
 )
 
 type Debug_Struct struct {
-	Opensearch bool
+	Opensearch  bool
+	OpenObserve bool
 	LLM        bool
 	Submit     bool
 	Config     bool
@@ -76,6 +77,9 @@ func Set_Debug(debug_level string) {
 
 		case "opensearch":
 			X.Opensearch = true
+
+		case "openobserve":
+			X.OpenObserve = true
 
 		case "llm":
 
@@ -112,6 +116,7 @@ func Set_Debug(debug_level string) {
 		case "all":
 
 			X.Opensearch = true
+			X.OpenObserve = true
 			X.Submit = true
 			X.LLM = true
 			X.Config = true

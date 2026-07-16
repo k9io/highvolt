@@ -99,9 +99,9 @@ func main() {
 
 	l.Logger(l.INFO, "Debug level: %s", debug_level)
 
-	/* Connect to Opensearch data queries/data storage */
+	/* Connect to the configured storage backend (OpenSearch or OpenObserve) */
 
-	db.Init_Opensearch()
+	db.Init_Store()
 
 	/* Setup "worker" group */
 
