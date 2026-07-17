@@ -77,7 +77,7 @@ func Init_Store() {
 	writeStores = nil
 	seenWrite := map[string]bool{}
 
-	for _, name := range models.C.Write_Backends {
+	for _, name := range models.C.Core.Write_Backends {
 
 		if seenWrite[name] {
 			continue
@@ -90,8 +90,8 @@ func Init_Store() {
 
 	}
 
-	initBackend(models.C.Query_Backend)
-	queryStore = newStore(models.C.Query_Backend)
+	initBackend(models.C.Core.Query_Backend)
+	queryStore = newStore(models.C.Core.Query_Backend)
 
 }
 

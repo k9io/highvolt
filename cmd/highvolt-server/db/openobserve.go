@@ -38,6 +38,13 @@ import (
 	l "github.com/k9io/highvolt/internal/logger"
 )
 
+/* Floor for SearchBySHA256's time range. OpenObserve rejects a literal
+   start_time of 0 as an invalid time range, so this stands in for "the
+   beginning of time" for our purposes -- comfortably before any document
+   this stream could contain, since it predates OpenObserve support in
+   Highvolt entirely. */
+var searchFloorMicros = time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC).UnixMicro()
+
 var OpenObserve_Client *http.Client
 
 type openObserveStore struct{}
@@ -154,7 +161,7 @@ func (openObserveStore) SearchBySHA256(sha256 string) (bool, error) {
 	queryDoc := map[string]interface{}{
 		"query": map[string]interface{}{
 			"sql":        sql,
-			"start_time": int64(0),
+			"start_time": searchFloorMicros, // a literal 0 is rejected by OpenObserve as an invalid time range
 			"end_time":   time.Now().UnixMicro(),
 			"from":       0,
 			"size":       1,
@@ -201,6 +208,21 @@ func (openObserveStore) SearchBySHA256(sha256 string) (bool, error) {
 
 		l.Logger(l.ERROR, "Cannot read response body from OpenObserve: %v", err)
 		return false, err
+
+	}
+
+	if resp.StatusCode == 400 {
+
+		/* OpenObserve returns 400 when the stream doesn't exist yet (e.g.
+		   first run, before anything has been ingested into it). Treat
+		   this the same as OpenSearch's 404-on-missing-index: assume the
+		   document isn't there rather than hard-failing the query. This
+		   is a broader net than OpenSearch's 404 -- a 400 can also mean a
+		   genuine malformed query -- so the body is still logged at WARN
+		   to keep a real bug visible. */
+
+		l.Logger(l.WARN, "OpenObserve search returned 400 for stream '%s' -- assuming it doesn't exist yet and treating as not found: %s", models.C.OpenObserve.Stream, string(bodyBytes))
+		return false, nil
 
 	}
 

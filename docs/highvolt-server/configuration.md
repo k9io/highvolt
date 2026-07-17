@@ -22,6 +22,8 @@
 | `archive_extract_timeout` | int | `300` | Max seconds for archive extraction (5 minutes) |
 | `max_body_size` | int64 | `1073741824` | Max HTTP request body size (1 GB) |
 | `export_command_timeout` | int | `120` | Max seconds for PDF/Office conversion commands |
+| `write_backends` | []string | `["opensearch"]` | Every backend listed here receives every indexed document. Valid entries: `"opensearch"`, `"openobserve"`. |
+| `query_backend` | string | `"opensearch"` | The single backend that answers `/query` lookups: `"opensearch"` or `"openobserve"`. |
 
 ## http
 
@@ -48,6 +50,17 @@
 | `username` | string | — | Basic auth username |
 | `password` | string | — | Basic auth password |
 | `index` | string | — | Index name for documents |
+| `tls_skip_verify` | bool | `false` | Disable TLS cert verification (not for production) |
+
+## openobserve
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `url` | string | — | OpenObserve base URL |
+| `username` | string | — | Basic auth username |
+| `password` | string | — | Basic auth password |
+| `organization` | string | — | OpenObserve organization name |
+| `stream` | string | — | Stream name for documents |
 | `tls_skip_verify` | bool | `false` | Disable TLS cert verification (not for production) |
 
 ## llm

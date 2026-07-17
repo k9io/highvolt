@@ -86,8 +86,8 @@ func Load_Config(configJSON string) {
 	models.C.HTTP.Mode = "production"
 	models.C.HTTP.TLS = false
 
-	models.C.Write_Backends = []string{"opensearch"}
-	models.C.Query_Backend = "opensearch"
+	models.C.Core.Write_Backends = []string{"opensearch"}
+	models.C.Core.Query_Backend = "opensearch"
 
 	models.C.Syslog.Host = "local"
 	models.C.Syslog.Proto = "tcp"
@@ -181,7 +181,7 @@ func Load_Config(configJSON string) {
 
 	/* --- Storage backends --- */
 
-	if len(models.C.Write_Backends) == 0 {
+	if len(models.C.Core.Write_Backends) == 0 {
 
 		l.Logger(l.ERROR, "Missing 'write_backends'. Must list one or more of 'opensearch', 'openobserve'.")
 		os.Exit(1)
@@ -194,7 +194,7 @@ func Load_Config(configJSON string) {
 
 	neededBackends := map[string]bool{}
 
-	for _, b := range models.C.Write_Backends {
+	for _, b := range models.C.Core.Write_Backends {
 
 		if !validBackend(b) {
 
@@ -207,20 +207,20 @@ func Load_Config(configJSON string) {
 
 	}
 
-	if !validBackend(models.C.Query_Backend) {
+	if !validBackend(models.C.Core.Query_Backend) {
 
-		l.Logger(l.ERROR, "Invalid 'query_backend' value '%s'. Must be 'opensearch' or 'openobserve'.", models.C.Query_Backend)
+		l.Logger(l.ERROR, "Invalid 'query_backend' value '%s'. Must be 'opensearch' or 'openobserve'.", models.C.Core.Query_Backend)
 		os.Exit(1)
 
 	}
 
-	neededBackends[models.C.Query_Backend] = true
+	neededBackends[models.C.Core.Query_Backend] = true
 
 	queryBackendIsWritten := false
 
-	for _, b := range models.C.Write_Backends {
+	for _, b := range models.C.Core.Write_Backends {
 
-		if b == models.C.Query_Backend {
+		if b == models.C.Core.Query_Backend {
 			queryBackendIsWritten = true
 		}
 
@@ -228,9 +228,11 @@ func Load_Config(configJSON string) {
 
 	if !queryBackendIsWritten {
 
-		l.Logger(l.WARN, "'query_backend' (%s) is not in 'write_backends' (%v) -- newly analyzed documents won't be visible to queries until this is corrected.", models.C.Query_Backend, models.C.Write_Backends)
+		l.Logger(l.WARN, "'query_backend' (%s) is not in 'write_backends' (%v) -- newly analyzed documents won't be visible to queries until this is corrected.", models.C.Core.Query_Backend, models.C.Core.Write_Backends)
 
 	}
+
+	l.Logger(l.NOTICE, "Storage backends resolved from config: write_backends=%v query_backend=%s", models.C.Core.Write_Backends, models.C.Core.Query_Backend)
 
 	if neededBackends["opensearch"] {
 

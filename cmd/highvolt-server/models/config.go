@@ -36,8 +36,6 @@ type Config_Struct struct {
 	Core               Core_Struct               `json:"core"`
 	HTTP               HTTP_Struct               `json:"http"`
 	Syslog             Syslog_Struct             `json:"syslog"`
-	Write_Backends     []string                  `json:"write_backends"`  // one or more of "opensearch", "openobserve"
-	Query_Backend      string                    `json:"query_backend"`   // "opensearch" or "openobserve"
 	Opensearch         Opensearch_Struct         `json:"opensearch"`
 	OpenObserve        OpenObserve_Struct        `json:"openobserve"`
 	LLM                LLM_Struct                `json:"llm"`
@@ -60,6 +58,8 @@ type Core_Struct struct {
 	Archive_Extract_Timeout  int         `json:"archive_extract_timeout"`   // seconds
 	Max_Body_Size            int64       `json:"max_body_size"`             // max HTTP request body bytes
 	Export_Command_Timeout   int         `json:"export_command_timeout"`    // seconds for pdf/office conversion commands
+	Write_Backends           []string    `json:"write_backends"`            // one or more of "opensearch", "openobserve"
+	Query_Backend            string      `json:"query_backend"`             // "opensearch" or "openobserve"
 }
 
 type HA_Proxy_Struct struct {
