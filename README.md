@@ -41,7 +41,7 @@ The purpose of Highvolt is to allow you to search for sensitive documents while 
 
 Before submitting a file to the LLM, Highvolt determines the best method of sending it. Image files can be submitted directly. PDFs and Office documents are automatically converted to an image format the LLM can ingest. Archives are unzipped and their contents analyzed recursively. Highvolt also performs SHA256-based deduplication — identical files are never analyzed twice, saving time and LLM resources.
 
-When sensitive documents are discovered, Highvolt produces a structured JSON result containing file hashes (MD5, SHA1, SHA256), the filename, and the full LLM response. By default this data is stored in an OpenSearch index, where it can be queried by log analysis engines, access-control systems, or any other downstream tool.
+When sensitive documents are discovered, Highvolt produces a structured JSON result containing file hashes (MD5, SHA1, SHA256), the filename, and the full LLM response. This data is stored in [OpenSearch](https://opensearch.org/) and/or [OpenObserve](https://openobserve.ai/), where it can be queried by log analysis engines, access-control systems, or any other downstream tool. Both backends can be written to simultaneously, with one designated to serve `/query` lookups — see [Configuration](#configuration).
 
 ---
 
@@ -49,7 +49,7 @@ When sensitive documents are discovered, Highvolt produces a structured JSON res
 
 Highvolt has two main components:
 
-**`highvolt-server`** does the heavy lifting: it receives document submissions from clients, queues them for asynchronous processing, communicates with the LLM, and stores results in OpenSearch. The server exposes a REST API and handles authentication via JWT.
+**`highvolt-server`** does the heavy lifting: it receives document submissions from clients, queues them for asynchronous processing, communicates with the LLM, and stores results in OpenSearch and/or OpenObserve. The server exposes a REST API and handles authentication via JWT.
 
 **Clients** run anywhere and submit documents to the server. The server does not care where the data came from — only the analysis matters.
 
@@ -109,7 +109,7 @@ The following must be available before running `highvolt-server`:
 
 | Dependency | Purpose |
 |---|---|
-| [OpenSearch](https://opensearch.org/) | Stores analysis results |
+| [OpenSearch](https://opensearch.org/) and/or [OpenObserve](https://openobserve.ai/) | Stores analysis results. Configurable per-backend write/query targets (see [Configuration](#configuration)) |
 | [JSONAir](https://github.com/k9io/jsonair/) | Centralized configuration service (see [JSONAir](#jsonair)) |
 | OpenAI-compatible LLM endpoint | Performs PII analysis (see [Compatible LLM Backends](#compatible-llm-backends)) |
 | [LibreOffice](https://www.libreoffice.org/) | Converts Office documents to PDF. Runs in a "headless" configuration |
@@ -204,11 +204,22 @@ Key server configuration options include:
     "cert": "/etc/highvolt/server.crt",
     "key": "/etc/highvolt/server.key"
   },
+  "core": {
+    "write_backends": ["opensearch", "openobserve"],
+    "query_backend": "opensearch"
+  },
   "opensearch": {
     "url": "https://opensearch.internal:9200",
     "username": "...",
     "password": "...",
     "index": "highvolt"
+  },
+  "openobserve": {
+    "url": "https://openobserve.internal:5080",
+    "username": "...",
+    "password": "...",
+    "organization": "default",
+    "stream": "highvolt"
   },
   "llm": {
     "url": "http://ollama.internal:11434/v1",
@@ -220,6 +231,8 @@ Key server configuration options include:
   }
 }
 ```
+
+`core.write_backends` lists every storage backend that receives each indexed document (`opensearch`, `openobserve`, or both, for dual-writing during a migration). `core.query_backend` names the single backend that answers `/query` lookups.
 
 Full configuration references for the server and each client are in the [Highvolt documentation](https://docs.k9.io/key9-identity/highvolt).
 
