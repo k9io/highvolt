@@ -14,6 +14,7 @@
 * [REST API Reference](highvolt-server/api.md)
 * [File Processing Pipeline](highvolt-server/processors.md)
 * [OpenSearch Integration](highvolt-server/opensearch.md)
+* [OpenObserve Integration](highvolt-server/openobserve.md)
 
 ## Clients
 

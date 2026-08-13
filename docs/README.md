@@ -4,7 +4,7 @@ Highvolt is an AI-powered Personally Identifiable Information (PII) detection sy
 
 ## What it does
 
-Highvolt accepts files from multiple sources, routes them through an analysis pipeline, and records the results in OpenSearch. Each file is evaluated by an LLM that returns a structured JSON verdict:
+Highvolt accepts files from multiple sources, routes them through an analysis pipeline, and records the results in OpenSearch and/or OpenObserve. Each file is evaluated by an LLM that returns a structured JSON verdict:
 
 ```json
 {
@@ -22,7 +22,7 @@ Results are deduplicated by SHA256 hash — a file already analyzed is never re-
 
 | Component | Description |
 |-----------|-------------|
-| `highvolt-server` | Central REST API server. Receives file submissions, queues work, invokes the LLM, and stores results in OpenSearch. |
+| `highvolt-server` | Central REST API server. Receives file submissions, queues work, invokes the LLM, and stores results in OpenSearch and/or OpenObserve. |
 | `voltage` | Endpoint agent. Scans local filesystems (Linux, macOS, Windows) for files matching configured MIME types and submits them to `highvolt-server`. |
 | `suricata` | Network integration. Listens on a Redis pub/sub queue populated by Suricata IDS and submits network-captured files for analysis. |
 | `aws-s3` | Batch cloud scanner. Traverses all existing buckets across an AWS Organization and submits matching objects to `highvolt-server`. Run once to establish a baseline. |
