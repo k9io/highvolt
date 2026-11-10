@@ -26,7 +26,7 @@
                    │      highvolt-server           │
                    │                                │
                    │  POST /submit  ──►  Queue      │
-                   │  POST /query   ──►  OpenSearch │
+                   │  POST /query   ──►  Storage    │
                    │                                │
                    │       Workers                  │
                    │     (goroutines)               │
@@ -35,12 +35,22 @@
              ┌────────────────┼────────────────┐
              │                │                │
              ▼                ▼                ▼
-       ┌──────────┐    ┌──────────┐    ┌──────────────┐
-       │   LLM    │    │OpenSearch│    │  JSONAir     │
-       │(OpenAI   │    │(results  │    │(config store)│
-       │ compat.) │    │ storage) │    │              │
-       └──────────┘    └──────────┘    └──────────────┘
+       ┌──────────┐    ┌─────────────┐  ┌──────────────┐
+       │   LLM    │    │   Storage   │  │  JSONAir     │
+       │(OpenAI   │    │ OpenObserve │  │(config store)│
+       │ compat.) │    │ and/or      │  │              │
+       │          │    │ OpenSearch  │  │              │
+       └──────────┘    └─────────────┘  └──────────────┘
 ```
+
+## Storage Backends
+
+Results can be stored in **OpenObserve** (preferred) and/or **OpenSearch**. Two independent settings control this (see [Configuration](highvolt-server/configuration.md#core)):
+
+- `core.write_backends` — every backend listed receives every analyzed document. Listing both enables dual-writing, e.g. during a migration.
+- `core.query_backend` — the single backend that answers `/query` (deduplication) lookups.
+
+See [OpenObserve Integration](highvolt-server/openobserve.md) and [OpenSearch Integration](highvolt-server/opensearch.md) for backend-specific behavior.
 
 ## Configuration Management (JSONAir)
 
@@ -59,12 +69,12 @@ All components fetch their runtime configuration from **JSONAir**, an external c
 5. `highvolt-server` validates the payload, places it on an internal in-memory queue, and returns immediately (async).
 6. A worker goroutine dequeues the work, classifies the MIME type, and routes it to the appropriate processor (IMAGE, TEXT, PDF, OFFICE, or ARCHIVE).
 7. The processor sends the file to the LLM via an OpenAI-compatible `POST /chat/completions` request.
-8. The LLM returns a JSON verdict. The worker merges the verdict into the original submission JSON and indexes it to OpenSearch, using the SHA256 as the document ID.
+8. The LLM returns a JSON verdict. The worker merges the verdict into the original submission JSON and indexes it to every backend in `write_backends` (OpenObserve and/or OpenSearch). OpenSearch uses the SHA256 as the document ID; OpenObserve appends it as a new record in the configured stream.
 9. The raw `file_data` field is stripped before storage — only metadata and LLM results are saved.
 
 ## Deduplication
 
-Most clients maintain a local **GOB binary registry** (a `map[string]bool` serialized to disk) keyed by SHA256 hash (Voltage) or S3 path (aws-s3). Before submitting a file, the client checks this local cache first, then confirms with the server via the `/query` endpoint. This two-layer approach avoids re-downloading large files unnecessarily.
+Most clients maintain a local **GOB binary registry** (a `map[string]bool` serialized to disk) keyed by SHA256 hash (Voltage) or S3 path (aws-s3). Before submitting a file, the client checks this local cache first, then confirms with the server via the `/query` endpoint, which is answered by the configured `query_backend`. This two-layer approach avoids re-downloading large files unnecessarily.
 
 The `aws-s3-lambda` client is stateless and has no local registry. It relies solely on the server-side SHA256 query for deduplication. Because the Lambda is only invoked for newly created objects, re-processing existing objects is not a concern.
 

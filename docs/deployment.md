@@ -4,7 +4,7 @@
 
 | Dependency | Purpose | Notes |
 |------------|---------|-------|
-| OpenSearch | Result storage | Any version compatible with the Go opensearch-go v2 client |
+| OpenObserve **or** OpenSearch | Result storage | OpenObserve is preferred. OpenSearch: any version compatible with the Go opensearch-go v2 client. Either or both may be used — see `write_backends` / `query_backend` |
 | JSONAir | Configuration service | Provides runtime config to all components |
 | LLM endpoint | PII analysis | Any OpenAI-compatible API (OpenAI, Ollama, vLLM, llama.cpp) |
 | Redis | Suricata integration only | Used for Suricata pub/sub queue |
@@ -59,7 +59,9 @@
     "max_archive_size": 524288000,
     "archive_extract_timeout": 300,
     "max_body_size": 1073741824,
-    "export_command_timeout": 120
+    "export_command_timeout": 120,
+    "write_backends": ["openobserve"],
+    "query_backend": "openobserve"
   },
   "http": {
     "listen": ":8443",
@@ -71,6 +73,14 @@
   "syslog": {
     "host": "localhost",
     "proto": "udp"
+  },
+  "openobserve": {
+    "url":             "https://openobserve.internal:5080",
+    "username":        "highvolt",
+    "password":        "...",
+    "organization":    "default",
+    "stream":          "highvolt",
+    "tls_skip_verify": false
   },
   "opensearch": {
     "url":      "https://opensearch.internal:9200",
@@ -101,6 +111,10 @@
   }
 }
 ```
+
+### Storage backends
+
+The example above writes to and queries **OpenObserve**, the preferred backend. Only the backends named in `write_backends` or `query_backend` are initialized and validated, so the `opensearch` block may be omitted when OpenSearch is not used (and vice versa). To use OpenSearch, set both values to `"opensearch"`; to dual-write while migrating, list both in `write_backends`. If neither key is set, the server defaults to `opensearch` for backward compatibility.
 
 ### export_commands placeholders
 

@@ -1,6 +1,6 @@
 # highvolt-server
 
-`highvolt-server` is the central analysis engine. It exposes a REST API over HTTP or HTTPS, accepts file submissions from clients, queues them for asynchronous LLM analysis, and stores results in OpenSearch and/or OpenObserve.
+`highvolt-server` is the central analysis engine. It exposes a REST API over HTTP or HTTPS, accepts file submissions from clients, queues them for asynchronous LLM analysis, and stores results in OpenObserve (preferred) and/or OpenSearch.
 
 ## Source layout
 
@@ -53,7 +53,7 @@ cmd/highvolt-server/
 4. Background goroutines started: config monitor, signal handler.
 5. Logger reconfigured to user-specified syslog target.
 6. Debug level fetched from JSONAir.
-7. Storage backends initialized (OpenSearch and/or OpenObserve, per `write_backends` / `query_backend`).
+7. Storage backends initialized (OpenObserve and/or OpenSearch, per `write_backends` / `query_backend`).
 8. Worker pool started.
 9. HAProxy TCP agent started (if enabled).
 10. HTTP server bound (drops Unix privileges after bind).

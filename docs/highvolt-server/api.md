@@ -95,7 +95,7 @@ Check whether a file has already been analyzed.
 
 ## Stored document schema
 
-After analysis, the document stored in OpenSearch contains the original submission fields (minus `file_data`) plus an `llm` field:
+After analysis, the document stored in each configured backend (OpenObserve and/or OpenSearch) contains the original submission fields (minus `file_data`) plus an `llm` field:
 
 ```json
 {

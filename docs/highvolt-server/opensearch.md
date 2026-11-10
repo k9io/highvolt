@@ -1,6 +1,8 @@
 # OpenSearch Integration
 
-Highvolt uses OpenSearch for two operations: **indexing** analysis results and **querying** by SHA256 to detect duplicates.
+OpenSearch is one of two supported storage backends. [OpenObserve](openobserve.md) is the preferred backend for new deployments; OpenSearch remains fully supported. Either backend can be used for **indexing** analysis results, for **querying** by SHA256 to detect duplicates, or both — controlled independently via `write_backends` and `query_backend` (see [Configuration](configuration.md#core)).
+
+OpenSearch is used only when `"opensearch"` appears in `write_backends` or `query_backend`. Because those settings default to `opensearch` when omitted, older configurations continue to work unchanged.
 
 ## Connection
 

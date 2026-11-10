@@ -1,6 +1,6 @@
 # OpenObserve Integration
 
-OpenObserve is an alternative storage backend to OpenSearch. It can be used for **indexing** analysis results, for **querying** by SHA256 to detect duplicates, or both — controlled independently via `write_backends` and `query_backend` (see [Configuration](configuration.md#core)).
+OpenObserve is the **preferred** storage backend for Highvolt; [OpenSearch](opensearch.md) is also supported. It can be used for **indexing** analysis results, for **querying** by SHA256 to detect duplicates, or both — controlled independently via `write_backends` and `query_backend` (see [Configuration](configuration.md#core)).
 
 ## Connection
 
@@ -42,6 +42,20 @@ A total of `0` means the file has never been analyzed. Any other value means it 
 A `400` response is treated the same as OpenSearch's 404-on-missing-index — it usually means the stream doesn't exist yet (e.g. before the first ingest) — and is treated as "not found" rather than a hard failure. Because a `400` can also indicate a genuinely malformed query, the response body is still logged at `WARN` so a real bug stays visible.
 
 ## Choosing backends
+
+To use OpenObserve as the only backend (recommended for new deployments):
+
+```json
+{
+  "core": {
+    "write_backends": ["openobserve"],
+    "query_backend": "openobserve"
+  }
+}
+```
+
+If these keys are omitted, the server defaults to `opensearch` for backward compatibility, so they must be set explicitly to use OpenObserve.
+
 
 `write_backends` and `query_backend` are independent, which allows dual-writing to both OpenSearch and OpenObserve during a migration while still reading from the trusted backend, then cutting reads over once the new backend is validated:
 

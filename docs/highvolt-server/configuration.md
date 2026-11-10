@@ -22,8 +22,8 @@
 | `archive_extract_timeout` | int | `300` | Max seconds for archive extraction (5 minutes) |
 | `max_body_size` | int64 | `1073741824` | Max HTTP request body size (1 GB) |
 | `export_command_timeout` | int | `120` | Max seconds for PDF/Office conversion commands |
-| `write_backends` | []string | `["opensearch"]` | Every backend listed here receives every indexed document. Valid entries: `"opensearch"`, `"openobserve"`. |
-| `query_backend` | string | `"opensearch"` | The single backend that answers `/query` lookups: `"opensearch"` or `"openobserve"`. |
+| `write_backends` | []string | `["opensearch"]` | Every backend listed here receives every indexed document. Valid entries: `"openobserve"` (preferred), `"opensearch"`. The default is kept for backward compatibility; new deployments should set `["openobserve"]`. |
+| `query_backend` | string | `"opensearch"` | The single backend that answers `/query` lookups: `"openobserve"` (preferred) or `"opensearch"`. Should also appear in `write_backends`, or a warning is logged. |
 
 ## http
 
@@ -42,17 +42,9 @@
 | `host` | string | `"local"` | Syslog host, or `"local"` for stderr/stdout |
 | `proto` | string | `"tcp"` | Transport protocol: `tcp` or `udp` |
 
-## opensearch
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `url` | string | — | OpenSearch base URL |
-| `username` | string | — | Basic auth username |
-| `password` | string | — | Basic auth password |
-| `index` | string | — | Index name for documents |
-| `tls_skip_verify` | bool | `false` | Disable TLS cert verification (not for production) |
-
 ## openobserve
+
+Preferred storage backend. Required when `"openobserve"` appears in `write_backends` or `query_backend`. See [OpenObserve Integration](openobserve.md).
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
@@ -61,6 +53,18 @@
 | `password` | string | — | Basic auth password |
 | `organization` | string | — | OpenObserve organization name |
 | `stream` | string | — | Stream name for documents |
+| `tls_skip_verify` | bool | `false` | Disable TLS cert verification (not for production) |
+
+## opensearch
+
+Required when `"opensearch"` appears in `write_backends` or `query_backend`. See [OpenSearch Integration](opensearch.md).
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `url` | string | — | OpenSearch base URL |
+| `username` | string | — | Basic auth username |
+| `password` | string | — | Basic auth password |
+| `index` | string | — | Index name for documents |
 | `tls_skip_verify` | bool | `false` | Disable TLS cert verification (not for production) |
 
 ## llm

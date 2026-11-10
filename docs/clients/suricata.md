@@ -19,7 +19,7 @@ Network Traffic
                     │  queries highvolt-server (dedup)
                     │  submits file for analysis
                     ▼
-            highvolt-server → LLM → OpenSearch
+            highvolt-server → LLM → OpenObserve / OpenSearch
 ```
 
 ## How it works
