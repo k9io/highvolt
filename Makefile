@@ -3,7 +3,7 @@ MODULE_NAME=github.com/k9io/highvolt
 PKG_VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo "1.0.0")
 PKG_STAGE    = $(BINARY_DIR)/pkg/voltage
 
-.PHONY: all build build-server build-client clean test tidy voltage-pkg
+.PHONY: all build build-server build-client clean test tidy
 
 # Default action when you just type 'make'
 
@@ -32,7 +32,7 @@ voltscan:
 aws-s3:
 
 	@echo "AWS-S3..."
-	go build -o $(BINARY_DIR)/clients/voltage/aws-s3 ./cmd/clients/aws-s3
+	go build -o $(BINARY_DIR)/clients/aws-s3/aws-s3 ./cmd/clients/aws-s3
 
 aws-s3-lambda:
 
@@ -42,12 +42,14 @@ aws-s3-lambda:
 
 build-all:
 
-	@echo "Building for Windows..."
+	@echo "Building clients for Windows..."
 
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BINARY_DIR)/highvolt-server/windows/highvolt-server.exe ./cmd/highvolt-server
+	# highvolt-server is not built for Windows: it relies on Unix-only
+	# privilege dropping (setuid/setgid) and runs as a Linux/Unix daemon.
 
-	GOOS=linux GOARCH=amd64 go build -o $(BINARY_DIR)/clients/suricata/windows/suricata.exe ./cmd/clients/suricata
-#	GOOS=linux GOARCH=amd64 go build -o $(BINARY_DIR)/clients/aws-s3/windows/aws-s3.exe ./cmd/aws-s3
+	GOOS=windows GOARCH=amd64 go build -o $(BINARY_DIR)/clients/suricata/windows/hv-suricata.exe ./cmd/clients/suricata
+	GOOS=windows GOARCH=amd64 go build -o $(BINARY_DIR)/clients/aws-s3/windows/aws-s3.exe ./cmd/clients/aws-s3
+	GOOS=windows GOARCH=amd64 go build -o $(BINARY_DIR)/clients/voltage/windows/voltage.exe ./cmd/clients/voltage
 
 
 #	@echo "Building for Linux..."
@@ -59,36 +61,39 @@ build-all:
 	#GOOS=darwin GOARCH=arm64 go build -o $(BINARY_DIR)/mac/server-m1 ./cmd/server
 
 
-voltage-pkg:
-	@echo "Building voltage (arm64)..."
-	GOOS=darwin GOARCH=arm64 go build -o $(BINARY_DIR)/voltage-arm64 ./cmd/clients/voltage
-	@echo "Building voltage (amd64)..."
-	GOOS=darwin GOARCH=amd64 go build -o $(BINARY_DIR)/voltage-amd64 ./cmd/clients/voltage
-	@echo "Creating universal binary..."
-	lipo -create -output $(BINARY_DIR)/voltage $(BINARY_DIR)/voltage-arm64 $(BINARY_DIR)/voltage-amd64
-	rm $(BINARY_DIR)/voltage-arm64 $(BINARY_DIR)/voltage-amd64
-	@echo "Staging package layout..."
-	rm -rf $(PKG_STAGE)
-	mkdir -p $(PKG_STAGE)/payload/usr/local/bin
-	mkdir -p $(PKG_STAGE)/scripts
-	cp $(BINARY_DIR)/voltage $(PKG_STAGE)/payload/usr/local/bin/voltage
-	mkdir -p $(PKG_STAGE)/payload/etc/voltage
-	cp cmd/clients/voltage/.env $(PKG_STAGE)/payload/etc/voltage/.env
-	cp pkg/voltage/postinstall $(PKG_STAGE)/scripts/postinstall
-	chmod +x $(PKG_STAGE)/scripts/postinstall
-	@echo "Building voltage-$(PKG_VERSION).pkg..."
-	pkgbuild --root $(PKG_STAGE)/payload \
-	         --scripts $(PKG_STAGE)/scripts \
-	         --identifier io.k9.voltage \
-	         --version $(PKG_VERSION) \
-	         --install-location / \
-	         $(PKG_STAGE)/voltage-component.pkg
-	sed 's/VERSION_PLACEHOLDER/$(PKG_VERSION)/' pkg/voltage/distribution.xml > $(PKG_STAGE)/distribution.xml
-	productbuild --distribution $(PKG_STAGE)/distribution.xml \
-	             --package-path $(PKG_STAGE) \
-	             --resources pkg/voltage \
-	             $(BINARY_DIR)/voltage-$(PKG_VERSION).pkg
-	@echo "Done: $(BINARY_DIR)/voltage-$(PKG_VERSION).pkg"
+# voltage-pkg builds a macOS .pkg installer for Voltage. Disabled for now: it
+# needs pkg/voltage/postinstall, pkg/voltage/distribution.xml and
+# cmd/clients/voltage/.env, which are not in the repository yet.
+#voltage-pkg:
+#	@echo "Building voltage (arm64)..."
+#	GOOS=darwin GOARCH=arm64 go build -o $(BINARY_DIR)/voltage-arm64 ./cmd/clients/voltage
+#	@echo "Building voltage (amd64)..."
+#	GOOS=darwin GOARCH=amd64 go build -o $(BINARY_DIR)/voltage-amd64 ./cmd/clients/voltage
+#	@echo "Creating universal binary..."
+#	lipo -create -output $(BINARY_DIR)/voltage $(BINARY_DIR)/voltage-arm64 $(BINARY_DIR)/voltage-amd64
+#	rm $(BINARY_DIR)/voltage-arm64 $(BINARY_DIR)/voltage-amd64
+#	@echo "Staging package layout..."
+#	rm -rf $(PKG_STAGE)
+#	mkdir -p $(PKG_STAGE)/payload/usr/local/bin
+#	mkdir -p $(PKG_STAGE)/scripts
+#	cp $(BINARY_DIR)/voltage $(PKG_STAGE)/payload/usr/local/bin/voltage
+#	mkdir -p $(PKG_STAGE)/payload/etc/voltage
+#	cp cmd/clients/voltage/.env $(PKG_STAGE)/payload/etc/voltage/.env
+#	cp pkg/voltage/postinstall $(PKG_STAGE)/scripts/postinstall
+#	chmod +x $(PKG_STAGE)/scripts/postinstall
+#	@echo "Building voltage-$(PKG_VERSION).pkg..."
+#	pkgbuild --root $(PKG_STAGE)/payload \
+#	         --scripts $(PKG_STAGE)/scripts \
+#	         --identifier io.k9.voltage \
+#	         --version $(PKG_VERSION) \
+#	         --install-location / \
+#	         $(PKG_STAGE)/voltage-component.pkg
+#	sed 's/VERSION_PLACEHOLDER/$(PKG_VERSION)/' pkg/voltage/distribution.xml > $(PKG_STAGE)/distribution.xml
+#	productbuild --distribution $(PKG_STAGE)/distribution.xml \
+#	             --package-path $(PKG_STAGE) \
+#	             --resources pkg/voltage \
+#	             $(BINARY_DIR)/voltage-$(PKG_VERSION).pkg
+#	@echo "Done: $(BINARY_DIR)/voltage-$(PKG_VERSION).pkg"
 
 # Clean up build artifacts
 clean:

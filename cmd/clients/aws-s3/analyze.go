@@ -112,7 +112,7 @@ func Analyze(ctx context.Context, client *s3.Client, accID, bucket string, obj s
 
 			highvolt_query, _ := sjson.Set("", "sha256", sha256_hex)
 
-			results, status, err := http_req.HTTP(highvolt_query, Config.Highvolt.Query, "POST", *bearerToken)
+			results, status, err := http_req.HTTP(highvolt_query, highvoltEndpoint("query"), "POST", *bearerToken)
 
 			if err != nil {
 				l.Logger(l.ERROR, "%v", err)
@@ -122,7 +122,7 @@ func Analyze(ctx context.Context, client *s3.Client, accID, bucket string, obj s
 			if status == 401 {
 				l.Logger(l.NOTICE, "Highvolt bearer token expired. Getting a new one.")
 				*bearerToken = jwt.PAT_Auth("highvolt", Config.Highvolt.URL, define.HIGHVOLT_VERSION, Config.Highvolt.Pat, false)
-				results, _, err = http_req.HTTP(highvolt_query, Config.Highvolt.Query, "POST", *bearerToken)
+				results, _, err = http_req.HTTP(highvolt_query, highvoltEndpoint("query"), "POST", *bearerToken)
 				if err != nil {
 					l.Logger(l.ERROR, "%v", err)
 					return
@@ -145,7 +145,7 @@ func Analyze(ctx context.Context, client *s3.Client, accID, bucket string, obj s
 
 			highvolt_json := Mk_JSON(md5_hex, sha1_hex, sha256_hex, b64Payload.String(), mtype.String(), bucket, *obj.Key)
 
-			_, status, err = http_req.HTTP(highvolt_json, Config.Highvolt.Submit, "POST", *bearerToken)
+			_, status, err = http_req.HTTP(highvolt_json, highvoltEndpoint("submit"), "POST", *bearerToken)
 
 			if err != nil {
 				l.Logger(l.ERROR, "%v", err)
@@ -155,7 +155,7 @@ func Analyze(ctx context.Context, client *s3.Client, accID, bucket string, obj s
 			if status == 401 {
 				l.Logger(l.NOTICE, "Highvolt bearer token expired. Getting a new one.")
 				*bearerToken = jwt.PAT_Auth("highvolt", Config.Highvolt.URL, define.HIGHVOLT_VERSION, Config.Highvolt.Pat, false)
-				_, _, err = http_req.HTTP(highvolt_json, Config.Highvolt.Submit, "POST", *bearerToken)
+				_, _, err = http_req.HTTP(highvolt_json, highvoltEndpoint("submit"), "POST", *bearerToken)
 				if err != nil {
 					l.Logger(l.ERROR, "%v", err)
 					return

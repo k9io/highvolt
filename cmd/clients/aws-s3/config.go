@@ -40,16 +40,13 @@ type Config_Struct struct {
 	Code int
 
 	Core struct {
-		Suricata_Path string
 		MIME_Types    []string
 		Max_File_Size int64
 	}
 
 	Highvolt struct {
-		URL    string
-		Pat    string
-		Submit string
-		Query  string
+		URL string
+		Pat string
 	}
 
 	Syslog struct {
@@ -144,11 +141,6 @@ func LoadConfig(configJSON string) {
 
 	}
 
-	/* DEBUG: Sanity check Highvolt JSON */
-
-	Config.Highvolt.Submit = fmt.Sprintf("%s/api/v1/highvolt/submit", Config.Highvolt.URL)
-	Config.Highvolt.Query = fmt.Sprintf("%s/api/v1/highvolt/query", Config.Highvolt.URL)
-
 	if Config.Syslog.Host == "" {
 
 		l.Logger(l.ERROR, "Cannot find 'syslog.host' in configation JSON.")
@@ -165,4 +157,10 @@ func LoadConfig(configJSON string) {
 
 		}
 	}
+}
+
+// highvoltEndpoint returns the full URL of a highvolt-server API endpoint
+// (e.g. "query" or "submit"), derived from 'highvolt.url'.
+func highvoltEndpoint(name string) string {
+	return fmt.Sprintf("%s/api/v1/highvolt/%s", Config.Highvolt.URL, name)
 }

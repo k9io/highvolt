@@ -73,7 +73,7 @@ func FileScan(full_path string, mimetype string, md5_hex string, sha1_hex string
 
 	// json_data string, url string, http_type string, bearer_token string
 
-	results, status_code, err := http_req.HTTP(highvolt_query, Config.Highvolt.Query, "POST", *bearerToken)
+	results, status_code, err := http_req.HTTP(highvolt_query, highvoltEndpoint("query"), "POST", *bearerToken)
 
 	if err != nil {
 		l.Logger(l.ERROR, "Query to Highvolt failed: %v", err)
@@ -83,7 +83,7 @@ func FileScan(full_path string, mimetype string, md5_hex string, sha1_hex string
 	if status_code == 401 {
 		l.Logger(l.NOTICE, "Highvolt bearer token expired. Getting a new one.")
 		*bearerToken = jwt.PAT_Auth("highvolt", Config.Highvolt.URL, define.HIGHVOLT_VERSION, Config.Highvolt.Pat, false)
-		results, _, err = http_req.HTTP(highvolt_query, Config.Highvolt.Query, "POST", *bearerToken)
+		results, _, err = http_req.HTTP(highvolt_query, highvoltEndpoint("query"), "POST", *bearerToken)
 		if err != nil {
 			l.Logger(l.ERROR, "Query to Highvolt failed: %v", err)
 			return false
@@ -104,7 +104,7 @@ func FileScan(full_path string, mimetype string, md5_hex string, sha1_hex string
 
 	l.Logger(l.NOTICE, "Submitting %s [%s] for analysis", full_path, mimetype)
 
-	_, status_code, err = http_req.HTTP(highvolt_json, Config.Highvolt.Submit, "POST", *bearerToken)
+	_, status_code, err = http_req.HTTP(highvolt_json, highvoltEndpoint("submit"), "POST", *bearerToken)
 
 	if err != nil {
 		l.Logger(l.ERROR, "Submit to Highvolt failed: %v", err)
@@ -114,7 +114,7 @@ func FileScan(full_path string, mimetype string, md5_hex string, sha1_hex string
 	if status_code == 401 {
 		l.Logger(l.NOTICE, "Highvolt bearer token expired. Getting a new one.")
 		*bearerToken = jwt.PAT_Auth("highvolt", Config.Highvolt.URL, define.HIGHVOLT_VERSION, Config.Highvolt.Pat, false)
-		_, _, err = http_req.HTTP(highvolt_json, Config.Highvolt.Submit, "POST", *bearerToken)
+		_, _, err = http_req.HTTP(highvolt_json, highvoltEndpoint("submit"), "POST", *bearerToken)
 		if err != nil {
 			l.Logger(l.ERROR, "Submit to Highvolt failed: %v", err)
 			return false

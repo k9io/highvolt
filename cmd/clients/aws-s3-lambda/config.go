@@ -16,7 +16,7 @@
 **
 ** You should have received a copy of the GNU Affero General Public License
 ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package main
 
@@ -39,10 +39,8 @@ type Config_Struct struct {
 	}
 
 	Highvolt struct {
-		URL    string
-		Pat    string
-		Submit string
-		Query  string
+		URL string
+		Pat string
 	}
 }
 
@@ -108,8 +106,19 @@ func LoadConfig(configJSON string) {
 		log.Fatalf("[ERROR] core.max_file_size is not set in JSONAIR config")
 	}
 
-	Config.Highvolt.Submit = fmt.Sprintf("%s/api/v1/highvolt/submit", Config.Highvolt.URL)
-	Config.Highvolt.Query = fmt.Sprintf("%s/api/v1/highvolt/query", Config.Highvolt.URL)
+	if Config.Highvolt.URL == "" {
+		log.Fatalf("[ERROR] highvolt.url is not set in JSONAIR config")
+	}
+
+	if Config.Highvolt.Pat == "" {
+		log.Fatalf("[ERROR] highvolt.pat is not set in JSONAIR config")
+	}
 
 	log.Printf("[INFO] Config loaded: %d MIME types, max_file_size=%d", len(Config.Core.MIME_Types), Config.Core.Max_File_Size)
+}
+
+// highvoltEndpoint returns the full URL of a highvolt-server API endpoint
+// (e.g. "query" or "submit"), derived from 'highvolt.url'.
+func highvoltEndpoint(name string) string {
+	return fmt.Sprintf("%s/api/v1/highvolt/%s", Config.Highvolt.URL, name)
 }

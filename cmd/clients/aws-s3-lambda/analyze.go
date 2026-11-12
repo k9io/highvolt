@@ -111,7 +111,7 @@ func Analyze(ctx context.Context, client *s3.Client, bucket, key string, bearerT
 
 	// Check whether Highvolt has already processed this content by SHA256.
 	queryBody, _ := sjson.Set("", "sha256", sha256hex)
-	results, status, err := http_req.HTTP(queryBody, Config.Highvolt.Query, "POST", *bearerToken)
+	results, status, err := http_req.HTTP(queryBody, highvoltEndpoint("query"), "POST", *bearerToken)
 	if err != nil {
 		log.Printf("[ERROR] Highvolt query for %s: %v", s3Path, err)
 		return
@@ -119,7 +119,7 @@ func Analyze(ctx context.Context, client *s3.Client, bucket, key string, bearerT
 	if status == 401 {
 		log.Println("[NOTICE] Highvolt bearer token expired, refreshing")
 		*bearerToken = patAuth("highvolt", Config.Highvolt.URL, define.HIGHVOLT_VERSION, Config.Highvolt.Pat)
-		results, _, err = http_req.HTTP(queryBody, Config.Highvolt.Query, "POST", *bearerToken)
+		results, _, err = http_req.HTTP(queryBody, highvoltEndpoint("query"), "POST", *bearerToken)
 		if err != nil {
 			log.Printf("[ERROR] Highvolt query after token refresh for %s: %v", s3Path, err)
 			return
@@ -138,7 +138,7 @@ func Analyze(ctx context.Context, client *s3.Client, bucket, key string, bearerT
 
 	payload := MkJSON(md5hex, sha1hex, sha256hex, b64Payload.String(), mtype.String(), bucket, key)
 
-	_, status, err = http_req.HTTP(payload, Config.Highvolt.Submit, "POST", *bearerToken)
+	_, status, err = http_req.HTTP(payload, highvoltEndpoint("submit"), "POST", *bearerToken)
 	if err != nil {
 		log.Printf("[ERROR] Highvolt submit for %s: %v", s3Path, err)
 		return
@@ -146,7 +146,7 @@ func Analyze(ctx context.Context, client *s3.Client, bucket, key string, bearerT
 	if status == 401 {
 		log.Println("[NOTICE] Highvolt bearer token expired, refreshing")
 		*bearerToken = patAuth("highvolt", Config.Highvolt.URL, define.HIGHVOLT_VERSION, Config.Highvolt.Pat)
-		_, _, err = http_req.HTTP(payload, Config.Highvolt.Submit, "POST", *bearerToken)
+		_, _, err = http_req.HTTP(payload, highvoltEndpoint("submit"), "POST", *bearerToken)
 		if err != nil {
 			log.Printf("[ERROR] Highvolt submit after token refresh for %s: %v", s3Path, err)
 			return

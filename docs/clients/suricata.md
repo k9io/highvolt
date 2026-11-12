@@ -70,26 +70,44 @@ file-store:
     "mime_types": ["application/pdf", "image/jpeg", "image/png"]
   },
   "redis": {
-    "server": "127.0.0.1",
-    "port":   6379,
-    "key":    "suricata"
+    "host":     "127.0.0.1",
+    "port":     6379,
+    "key":      "suricata",
+    "database": 0,
+    "username": "",
+    "password": ""
   },
   "syslog": {
     "host": "local",
     "proto": "tcp"
   },
   "highvolt": {
-    "url":    "https://highvolt.internal:8443",
-    "pat":    "your-highvolt-pat",
-    "query":  "https://highvolt.internal:8443/api/v1/highvolt/query",
-    "submit": "https://highvolt.internal:8443/api/v1/highvolt/submit"
+    "url": "https://highvolt.internal:8443",
+    "pat": "your-highvolt-pat"
   }
 }
 ```
 
+The client derives the `/api/v1/highvolt/query` and `/api/v1/highvolt/submit` endpoints from `highvolt.url`; they do not need to be configured separately.
+
+`redis.host`, `redis.port` and `redis.key` are required; `redis.database`, `redis.username` and `redis.password` are optional. `syslog.proto` is required unless `syslog.host` is `local`.
+
+## Environment variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `JSONAIR_URL` | Yes | Base URL of the JSONAir configuration service |
+| `JSONAIR_PAT` | Yes | Personal Access Token for JSONAir |
+| `JSONAIR_TYPE` | Yes | JSONAir config object type |
+| `JSONAIR_NAME` | Yes | JSONAir config object name |
+| `SLEEP` | Yes | Seconds between polls of JSONAir for config reloads and debug-level changes. Must be non-zero. |
+| `TLS_SKIP_VERIFY` | No | Set `true` to disable TLS verification. Do not use in production. |
+
+These can also be placed in a `.env` file next to the binary.
+
 ## Debug flags
 
-The `suricata` client supports granular debug logging that can be toggled at runtime via JSONAir:
+The `suricata` client supports granular debug logging that can be toggled at runtime via JSONAir. The debug level is a comma-separated list of the flags below (e.g. `http,redis`), `all` to enable every flag, or `none`:
 
 | Flag | What it logs |
 |------|-------------|
@@ -100,7 +118,7 @@ The `suricata` client supports granular debug logging that can be toggled at run
 
 ## Submitted JSON structure
 
-The submission to `highvolt-server` includes the original Suricata `fileinfo` JSON nested under a `suricata` field, along with device information from the host:
+The submission to `highvolt-server` includes the original Suricata event JSON (with a `highvolt.mimetype` field added) nested under a `suricata` field, along with information about the host under `data_origin`:
 
 ```json
 {
@@ -113,7 +131,7 @@ The submission to `highvolt-server` includes the original Suricata `fileinfo` JS
   "sha256": "abcdef...",
   "sha1": "...",
   "md5": "...",
-  "suricata": { ... original Suricata fileinfo JSON ... },
-  "device": { ... host information ... }
+  "suricata": { ... original Suricata event JSON ... },
+  "data_origin": { ... host information (os, cpu, memory, network) ... }
 }
 ```

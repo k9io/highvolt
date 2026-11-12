@@ -45,10 +45,8 @@ type Config_Struct struct {
 	}
 
 	Highvolt struct {
-		URL    string
-		Pat    string
-		Submit string
-		Query  string
+		URL string
+		Pat string
 	}
 
 	Redis struct {
@@ -172,8 +170,10 @@ func LoadConfig(configJSON string) {
 		os.Exit(1)
 	}
 
-	Config.Highvolt.Submit = fmt.Sprintf("%s/api/v1/highvolt/submit", Config.Highvolt.URL)
-	Config.Highvolt.Query = fmt.Sprintf("%s/api/v1/highvolt/query", Config.Highvolt.URL)
-
 }
 
+// highvoltEndpoint returns the full URL of a highvolt-server API endpoint
+// (e.g. "query" or "submit"), derived from 'highvolt.url'.
+func highvoltEndpoint(name string) string {
+	return fmt.Sprintf("%s/api/v1/highvolt/%s", Config.Highvolt.URL, name)
+}

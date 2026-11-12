@@ -232,25 +232,32 @@ func DoWork() {
 	case "linux", "freebsd", "openbsd", "netbsd", "aix", "solaris", "illumos", "dragonfly", "android":
 
 		Directories = Config.Operating_Systems.Unix.Directories
-		MIME_Types = Config.Operating_Systems.Unix.MIMETypes
+		MIME_Types = Config.Operating_Systems.Unix.MIME_Types
 		Exclude = Config.Operating_Systems.Unix.Exclude
 
 	case "darwin":
 
 		Directories = Config.Operating_Systems.MacOS.Directories
 
-		MIME_Types = Config.Operating_Systems.MacOS.MIMETypes
+		MIME_Types = Config.Operating_Systems.MacOS.MIME_Types
 		Exclude = Config.Operating_Systems.MacOS.Exclude
 
 	case "windows":
 
 		Directories = Config.Operating_Systems.Windows.Directories
-		MIME_Types = Config.Operating_Systems.Windows.MIMETypes
+		MIME_Types = Config.Operating_Systems.Windows.MIME_Types
 		Exclude = Config.Operating_Systems.Windows.Exclude
 
 	default:
 
 		l.Logger(l.ERROR, "Unknown operating system.")
+		os.Exit(1)
+
+	}
+
+	if len(MIME_Types) == 0 {
+
+		l.Logger(l.ERROR, "No MIME types configured for this operating system. Set 'operating_systems.<os>.mime_types' in the configuration JSON.")
 		os.Exit(1)
 
 	}

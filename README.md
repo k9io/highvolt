@@ -130,6 +130,7 @@ make build
 # Build individual components
 make highvolt-server
 make voltscan          # Voltage endpoint scanner
+make hv-suricata       # Suricata network integration
 make aws-s3            # AWS S3 batch scanner
 make aws-s3-lambda     # AWS Lambda function (cross-compiled for Linux/amd64)
 ```

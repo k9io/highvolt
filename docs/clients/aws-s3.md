@@ -6,7 +6,7 @@ The `aws-s3` client scans S3 buckets across an entire AWS Organization for files
 
 1. Authenticates to JSONAir and `highvolt-server`.
 2. Lists all accounts in the AWS Organization using the Organizations API.
-3. For each account (excluding any in the `s3.exclude_users` list), assumes the `OrganizationAccountAccessRole` IAM role via STS.
+3. For each account (excluding any whose **account name** appears in the `s3.exclude_users` list), assumes the `OrganizationAccountAccessRole` IAM role via STS.
 4. Lists all S3 buckets in that account.
 5. For each bucket, paginates through all objects.
 6. For each object, calls `Analyze()`:
@@ -48,6 +48,8 @@ Each member account must have an `OrganizationAccountAccessRole` that trusts the
 
 ## Configuration (via JSONAir)
 
+The scanner authenticates to AWS with the static credentials in the `aws` block. It does not fall back to environment variables, `~/.aws` profiles or an instance role, so `aws.access_key_id`, `aws.secret_access_key` and `aws.region` must all be set.
+
 ```json
 {
   "core": {
@@ -67,13 +69,13 @@ Each member account must have an `OrganizationAccountAccessRole` that trusts the
     "proto": "tcp"
   },
   "highvolt": {
-    "url":    "https://highvolt.internal:8443",
-    "pat":    "your-highvolt-pat",
-    "query":  "https://highvolt.internal:8443/api/v1/highvolt/query",
-    "submit": "https://highvolt.internal:8443/api/v1/highvolt/submit"
+    "url": "https://highvolt.internal:8443",
+    "pat": "your-highvolt-pat"
   }
 }
 ```
+
+The client derives the `/api/v1/highvolt/query` and `/api/v1/highvolt/submit` endpoints from `highvolt.url`; they do not need to be configured separately.
 
 ## Local registry
 
@@ -97,10 +99,9 @@ Objects in the registry are never re-downloaded, making subsequent runs much fas
   "sha1": "...",
   "md5": "...",
   "app": "aws-s3",
-  "s3_bucket": "my-bucket",
-  "s3_key": "documents/report.pdf",
-  "s3_account_id": "123456789012",
-  "device": { ... host information ... }
+  "full_path": "s3://my-bucket/documents/report.pdf",
+  "filename": "report.pdf",
+  "data_origin": { ... host information (os, cpu, memory, network) ... }
 }
 ```
 

@@ -112,8 +112,8 @@ func main() {
 			ConfigMu.RLock()
 			redisClient := Config.Redis.Client
 			redisKey := Config.Redis.Key
-			hvQuery := Config.Highvolt.Query
-			hvSubmit := Config.Highvolt.Submit
+			hvQuery := highvoltEndpoint("query")
+			hvSubmit := highvoltEndpoint("submit")
 			suricataPath := Config.Core.Suricata_Path
 			mimeTypes := Config.Core.MIME_Types
 			ConfigMu.RUnlock()

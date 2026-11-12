@@ -33,6 +33,14 @@
 |----------|----------|-------------|
 | `JSONAIR_URL` | Yes | Base URL of the JSONAir configuration service |
 | `JSONAIR_PAT` | Yes | Personal Access Token for JSONAir |
+| `JSONAIR_TYPE` | Yes | Config object type to fetch (e.g. `highvolt`) |
+| `JSONAIR_NAME` | Yes | Config object name to fetch |
+| `SLEEP` | `suricata` only (required) | Seconds between JSONAir polls for config reloads and debug-level changes |
+| `TLS_SKIP_VERIFY` | No | Set `true` to disable TLS verification. Do not use in production. |
+
+All three clients also load these from a `.env` file located next to the binary.
+
+The Highvolt server URL and PAT are not environment variables; clients read them from `highvolt.url` and `highvolt.pat` in their JSONAir config.
 
 ## highvolt-server Configuration (via JSONAir)
 
@@ -222,19 +230,27 @@ The task runs `voltage.exe --once` daily at 02:00 as the logged-in user. User-le
 
 ## Running suricata
 
-Suricata must be configured to write file extractions to disk and publish metadata to Redis. Set `JSONAIR_URL` and `JSONAIR_PAT` in the environment, then:
-
-```bash
-./suricata
-```
-
-## Running aws-s3
-
-AWS credentials and org-level role access must be configured. The scanner uses `OrganizationAccountAccessRole` to assume roles in member accounts.
+Suricata must be configured to write file extractions to disk and publish metadata to Redis. Set the JSONAir variables and `SLEEP` in the environment (or `.env`), then run the binary (`make hv-suricata` builds it as `hv-suricata`):
 
 ```bash
 export JSONAIR_URL=https://jsonair.internal
 export JSONAIR_PAT=pat_...
+export JSONAIR_TYPE=highvolt
+export JSONAIR_NAME=suricata.config
+export SLEEP=30
+
+./hv-suricata
+```
+
+## Running aws-s3
+
+AWS credentials are read from the `aws` block of the JSONAir config (`access_key_id`, `secret_access_key`, `region`); the standard AWS environment variables and profiles are not used. Those credentials must be able to list the organization's accounts, and the scanner uses `OrganizationAccountAccessRole` to assume roles in member accounts.
+
+```bash
+export JSONAIR_URL=https://jsonair.internal
+export JSONAIR_PAT=pat_...
+export JSONAIR_TYPE=highvolt
+export JSONAIR_NAME=aws-s3.config
 
 ./aws-s3
 ```

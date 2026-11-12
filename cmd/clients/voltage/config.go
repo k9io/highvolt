@@ -41,17 +41,14 @@ type Config_Struct struct {
 	}
 
 	Operating_Systems struct {
-		Unix    Unix_Struct
-		Windows Windows_Struct
-		MacOS   MacOS_Struct
+		Unix    OS_Struct
+		Windows OS_Struct
+		MacOS   OS_Struct
 	}
 
 	Highvolt struct {
-		URL	string
-		Pat     string
-		Submit  string
-		Query   string
-
+		URL string
+		Pat string
 	}
 
 	Syslog struct {
@@ -60,21 +57,10 @@ type Config_Struct struct {
 	}
 }
 
-type Unix_Struct struct {
+// OS_Struct holds the scan settings for one operating-system family.
+type OS_Struct struct {
 	Directories []string
-	MIMETypes   []string
-	Exclude     []string
-}
-
-type Windows_Struct struct {
-	Directories []string
-	MIMETypes   []string
-	Exclude     []string
-}
-
-type MacOS_Struct struct {
-	Directories []string
-	MIMETypes   []string
+	MIME_Types  []string
 	Exclude     []string
 }
 
@@ -185,7 +171,10 @@ func LoadConfig(configJSON string) {
 
 	}
 
-	Config.Highvolt.Submit = fmt.Sprintf("%s/api/v1/highvolt/submit", Config.Highvolt.URL)
-	Config.Highvolt.Query = fmt.Sprintf("%s/api/v1/highvolt/query", Config.Highvolt.URL)
+}
 
+// highvoltEndpoint returns the full URL of a highvolt-server API endpoint
+// (e.g. "query" or "submit"), derived from 'highvolt.url'.
+func highvoltEndpoint(name string) string {
+	return fmt.Sprintf("%s/api/v1/highvolt/%s", Config.Highvolt.URL, name)
 }

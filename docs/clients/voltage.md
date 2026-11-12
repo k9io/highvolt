@@ -14,7 +14,7 @@
    - The SHA256 is checked against the local registry — already-seen files are skipped.
    - The file is submitted to `highvolt-server` (query first, then submit if not found).
    - On successful submission, the SHA256 is recorded in the local registry.
-6. After all directories are walked, Voltage sleeps for one hour and repeats.
+6. After all directories are walked, Voltage sleeps for `core.sleep_interval` seconds (default 86400, one day) and repeats. With `--once`, or when run as the Windows scheduled task, it exits after a single pass instead.
 
 ## Local registry
 
@@ -55,7 +55,8 @@ Voltage uses the `kardianos/service` library to integrate with the OS service ma
 ```json
 {
   "core": {
-    "max_size": 104857600
+    "max_size": 104857600,
+    "sleep_interval": 86400
   },
   "operating_systems": {
     "unix": {
@@ -79,13 +80,20 @@ Voltage uses the `kardianos/service` library to integrate with the OS service ma
     "proto": "tcp"
   },
   "highvolt": {
-    "url":    "https://highvolt.internal:8443",
-    "pat":    "your-highvolt-pat",
-    "query":  "https://highvolt.internal:8443/api/v1/highvolt/query",
-    "submit": "https://highvolt.internal:8443/api/v1/highvolt/submit"
+    "url": "https://highvolt.internal:8443",
+    "pat": "your-highvolt-pat"
   }
 }
 ```
+
+The client derives the `/api/v1/highvolt/query` and `/api/v1/highvolt/submit` endpoints from `highvolt.url`; they do not need to be configured separately.
+
+Notes on the fields above:
+
+- `core.max_size` (bytes) is required. Files larger than this are skipped.
+- `core.sleep_interval` (seconds) is optional and defaults to 86400. It only applies when Voltage runs as a persistent service on macOS/Linux/Unix.
+- `operating_systems.<os>.mime_types` is required for the OS Voltage is running on; Voltage exits if it is empty. (Older configs used `mimetypes`; that key is no longer read and must be renamed to `mime_types`.)
+- `syslog.proto` is required unless `syslog.host` is `local`.
 
 ## MIME detection
 
