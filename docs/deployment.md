@@ -22,10 +22,13 @@
 | `JSONAIR_TYPE` | Yes | Config object type to fetch (e.g. `highvolt`) |
 | `JSONAIR_NAME` | Yes | Config object name to fetch |
 | `HIGHVOLT_PAT` | Yes | PAT clients must present to obtain a JWT |
-| `JWT_SECRET` | Yes | Secret key for HMAC-SHA256 JWT signing |
-| `JWT_EXPIRE` | Yes | JWT lifetime in minutes |
-| `RUNAS` | No | Unix username to drop privileges to after binding |
-| `CONFIG_SLEEP` | No | Interval for config polling (default 60s) |
+| `JWT_TOKEN_SECRET` | Yes | Secret key for HMAC-SHA256 JWT signing |
+| `JWT_TOKEN_EXPIRE` | Yes | JWT lifetime in minutes (must be > 0) |
+| `RUNAS` | Yes | Unix username to drop privileges to after binding |
+| `RELOAD_SLEEP` | No | Seconds between JSONAir polls for reload requests and debug-level changes (default 60). When a reload is signalled, the full config is re-fetched and applied. |
+| `TLS_SKIP_VERIFY` | No | Set `true` to disable TLS verification. Do not use in production. |
+
+highvolt-server also loads these from a `.env` file in the directory it is started from. See `cmd/highvolt-server/.env.example`.
 
 ### voltage / suricata / aws-s3
 
@@ -38,7 +41,7 @@
 | `SLEEP` | `suricata` only (required) | Seconds between JSONAir polls for config reloads and debug-level changes |
 | `TLS_SKIP_VERIFY` | No | Set `true` to disable TLS verification. Do not use in production. |
 
-All three clients also load these from a `.env` file located next to the binary.
+All three clients also load these from a `.env` file located next to the binary (`voltage` checks `/etc/voltage/.env` first). Each client directory has a commented `.env.example`.
 
 The Highvolt server URL and PAT are not environment variables; clients read them from `highvolt.url` and `highvolt.pat` in their JSONAir config.
 
@@ -142,8 +145,8 @@ export JSONAIR_PAT=pat_...
 export JSONAIR_TYPE=highvolt
 export JSONAIR_NAME=production
 export HIGHVOLT_PAT=your-server-pat
-export JWT_SECRET=your-jwt-secret
-export JWT_EXPIRE=60
+export JWT_TOKEN_SECRET=your-jwt-secret
+export JWT_TOKEN_EXPIRE=60
 export RUNAS=highvolt
 
 ./highvolt-server

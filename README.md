@@ -149,9 +149,9 @@ export JSONAIR_PAT=pat_...
 export JSONAIR_TYPE=highvolt
 export JSONAIR_NAME=production
 export HIGHVOLT_PAT=your-server-pat
-export JWT_SECRET=your-jwt-secret
-export JWT_EXPIRE=60        # JWT lifetime in minutes
-export RUNAS=highvolt       # Optional: drop privileges to this user after startup
+export JWT_TOKEN_SECRET=your-jwt-secret
+export JWT_TOKEN_EXPIRE=60  # JWT lifetime in minutes
+export RUNAS=highvolt       # Drop privileges to this user after startup
 
 ./highvolt-server
 ```

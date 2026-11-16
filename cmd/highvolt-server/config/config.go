@@ -370,34 +370,3 @@ func Load_Config(configJSON string) {
 	}
 
 }
-
-func Monitor_Config(bearerToken string, config_json string) {
-
-	var currentConfigJSON string
-
-	for {
-
-		/* Do sleep first, since we just got spawned */
-
-		time.Sleep(models.Env.CONFIG_SLEEP)
-
-		currentConfigJSON, bearerToken = GetConfigJSON(bearerToken)
-
-		models.ConfigMu.RLock()
-		changed := currentConfigJSON != models.C.JSON
-		models.ConfigMu.RUnlock()
-
-		if changed {
-
-			l.Logger(l.NOTICE, "Configuration update detected.  Loading new configurations")
-
-			Load_Config(currentConfigJSON)
-
-		}
-
-		/* DEBUG: option for "sleep" to show loop */
-		//l.Logger(l.DEBUG, "Completed Loop")
-
-	}
-
-}

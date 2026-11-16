@@ -76,10 +76,6 @@ func main() {
 
 	config.Load_Config(configJSON)
 
-	/* Start the configuration monitor */
-
-	go config.Monitor_Config(bearerToken, configJSON)
-
 	go SigHandler(signalChannel, bearerToken)
 
 	/* Reset logging to what the user wants! */

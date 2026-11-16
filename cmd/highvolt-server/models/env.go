@@ -36,9 +36,7 @@ type Environment_Struct struct {
         JSONAIR_TYPE string
         JSONAIR_NAME string
 
-	CONFIG_SLEEP       time.Duration
 	RELOAD_SLEEP	   time.Duration
-	DEBUG_SLEEP	   time.Duration
 
         JWTTokenSecret  []byte
         JWTTokenExpire  int

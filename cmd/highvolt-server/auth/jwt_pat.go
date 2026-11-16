@@ -13,6 +13,7 @@ package auth
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -24,6 +25,11 @@ import (
 
 	l "github.com/k9io/highvolt/internal/logger"
 )
+
+/* Returned by JSONAir API helpers when JSONAir rejects the bearer token
+   (HTTP 401). Callers should get a new token with PAT_Auth() and retry. */
+
+var ErrUnauthorized = errors.New("JSONAir rejected the bearer token (HTTP 401)")
 
 type JWT_Struct struct {
 	Access_Token string

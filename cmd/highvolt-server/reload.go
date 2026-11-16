@@ -22,10 +22,13 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
+	"github.com/k9io/highvolt/cmd/highvolt-server/auth"
 	"github.com/k9io/highvolt/cmd/highvolt-server/config"
 	"github.com/k9io/highvolt/cmd/highvolt-server/debug"
 	"github.com/k9io/highvolt/cmd/highvolt-server/models"
@@ -41,15 +44,13 @@ type reloadResponse struct {
 
 func Monitor_Reload(bearerToken string) {
 
-	var old_reload_hash string
+	old_reload_hash, err := fetchReloadHash(&bearerToken)
 
-	reload_hash, err := GetReloadHash(bearerToken)
 	if err != nil {
 		l.Logger(l.ERROR, "GetReloadHash: %v", err)
 	}
-	old_reload_hash = reload_hash
 
-	err, debug_string := debug.GetDebugLevel(bearerToken)
+	old_debug_string, err := fetchDebugLevel(&bearerToken)
 
 	if err != nil {
 
@@ -58,19 +59,19 @@ func Monitor_Reload(bearerToken string) {
 
 	}
 
-	old_debug_string := debug_string
-
 	for {
 
-		/* Monitor Redis for when to reload the Highvolt
-		   configuration. */
+		/* Monitor JSONAir for when to reload the Highvolt
+		   configuration. On error, skip the comparison so a
+		   failed request is not mistaken for a reload signal. */
 
-		reload_hash, err = GetReloadHash(bearerToken)
+		reload_hash, err := fetchReloadHash(&bearerToken)
+
 		if err != nil {
-			l.Logger(l.ERROR, "GetReloadHash: %v", err)
-		}
 
-		if reload_hash != old_reload_hash {
+			l.Logger(l.ERROR, "GetReloadHash: %v", err)
+
+		} else if reload_hash != old_reload_hash {
 
 			l.Logger(l.NOTICE, "Got reload signal.")
 
@@ -82,16 +83,16 @@ func Monitor_Reload(bearerToken string) {
 
 		}
 
-		/* Monitor Redis for when to set a new debug
-		   level */
+		/* Monitor JSONAir for when to set a new debug
+		   level. On error, keep the current level. */
 
-		err, debug_string = debug.GetDebugLevel(bearerToken)
+		debug_string, err := fetchDebugLevel(&bearerToken)
 
 		if err != nil {
-			l.Logger(l.ERROR, "%v", err)
-		}
 
-		if debug_string != old_debug_string {
+			l.Logger(l.ERROR, "%v", err)
+
+		} else if debug_string != old_debug_string {
 
 			l.Logger(l.NOTICE, "Debug level change: %s", debug_string)
 
@@ -101,9 +102,47 @@ func Monitor_Reload(bearerToken string) {
 
 		}
 
-		time.Sleep(60 * time.Second) /* Prevent 100% CPU usage */
+		time.Sleep(models.Env.RELOAD_SLEEP) /* Prevent 100% CPU usage */
 
 	}
+
+}
+
+/* fetchReloadHash calls GetReloadHash and, if JSONAir rejects the bearer
+   token, gets a new one via PAT_Auth() and retries once. The refreshed
+   token is written back through bearerToken. */
+
+func fetchReloadHash(bearerToken *string) (string, error) {
+
+	reload_hash, err := GetReloadHash(*bearerToken)
+
+	if errors.Is(err, auth.ErrUnauthorized) {
+
+		l.Logger(l.NOTICE, "Bearer Token expired. Getting a new one.")
+		*bearerToken = auth.PAT_Auth()
+		reload_hash, err = GetReloadHash(*bearerToken)
+
+	}
+
+	return reload_hash, err
+
+}
+
+/* fetchDebugLevel is the debug-level equivalent of fetchReloadHash. */
+
+func fetchDebugLevel(bearerToken *string) (string, error) {
+
+	err, debug_string := debug.GetDebugLevel(*bearerToken)
+
+	if errors.Is(err, auth.ErrUnauthorized) {
+
+		l.Logger(l.NOTICE, "Bearer Token expired. Getting a new one.")
+		*bearerToken = auth.PAT_Auth()
+		err, debug_string = debug.GetDebugLevel(*bearerToken)
+
+	}
+
+	return debug_string, err
 
 }
 
@@ -112,9 +151,17 @@ func GetReloadHash(bearerToken string) (string, error) {
 	reloadURL := fmt.Sprintf("%s/api/%s/jsonair/reload", models.Env.JSONAIR_URL, define.JSONAIR_VERSION)
 	jsonQuery := fmt.Sprintf(`{"type":"%s","name":"%s"}`, models.Env.JSONAIR_TYPE, models.Env.JSONAIR_NAME)
 
-	result, _, err := http_req.HTTP(jsonQuery, reloadURL, "GET", bearerToken)
+	result, status_code, err := http_req.HTTP(jsonQuery, reloadURL, "GET", bearerToken)
 	if err != nil {
 		return "", fmt.Errorf("http_req.HTTP: %v", err)
+	}
+
+	if status_code == http.StatusUnauthorized {
+		return "", auth.ErrUnauthorized
+	}
+
+	if status_code != http.StatusOK {
+		return "", fmt.Errorf("reload request returned HTTP %d", status_code)
 	}
 
 	var r reloadResponse

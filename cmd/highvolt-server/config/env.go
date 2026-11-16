@@ -38,12 +38,6 @@ func Load_Env() models.Environment_Struct {
 	var err error
 	var tmp string
 
-	/* Defaults */
-
-	models.Env.CONFIG_SLEEP = 600
-	models.Env.RELOAD_SLEEP = 300
-	models.Env.DEBUG_SLEEP = 60
-
 	if err := godotenv.Load(); err != nil {
 		l.Logger(l.NOTICE, "No .env file found, using system environment variables.")
 	}
@@ -90,33 +84,9 @@ func Load_Env() models.Environment_Struct {
 		os.Exit(1)
 	}
 
-	tmp = os.Getenv("CONFIG_SLEEP")
+	/* RELOAD_SLEEP is optional and defaults to 60 seconds */
 
-	if tmp != "" {
-
-		val, err := strconv.Atoi(tmp)
-
-		if err != nil {
-
-			l.Logger(l.ERROR, "CONFIG_SLEEP environment variable is not set.")
-			os.Exit(1)
-		}
-
-		if val == 0 {
-
-			l.Logger(l.ERROR, "CONFIG_SLEEP must be a non-zero number.")
-			os.Exit(1)
-
-		}
-
-		models.Env.CONFIG_SLEEP = time.Duration(val) * time.Second
-
-	} else { 
-
-		l.Logger(l.ERROR, "CONFIG_SLEEP environment variable is not set.")
-		os.Exit(1)
-
-	}
+	models.Env.RELOAD_SLEEP = 60 * time.Second
 
 	tmp = os.Getenv("RELOAD_SLEEP")
 
@@ -126,53 +96,20 @@ func Load_Env() models.Environment_Struct {
 
 		if err != nil {
 
-			l.Logger(l.ERROR, "RELOAD_SLEEP environment variable is not set.")
+			l.Logger(l.ERROR, "RELOAD_SLEEP environment variable is not an integer.")
 			os.Exit(1)
 		}
 
-		if val == 0 {
+		if val <= 0 {
 
-			l.Logger(l.ERROR, "RELOAD_SLEEP must be a non-zero number.")
+			l.Logger(l.ERROR, "RELOAD_SLEEP must be greater than zero.")
 			os.Exit(1)
 
 		}
 
 		models.Env.RELOAD_SLEEP = time.Duration(val) * time.Second
 
-	} else {
-
-        l.Logger(l.ERROR, "RELOAD_SLEEP environment variable is not set.")
-	os.Exit(1)
-
-        }
-
-	tmp = os.Getenv("DEBUG_SLEEP")
-
-	if tmp != "" {
-
-		val, err := strconv.Atoi(tmp)
-
-		if err != nil {
-
-			l.Logger(l.ERROR, "DEBUG_SLEEP environment variable is not set.")
-			os.Exit(1)
-		}
-
-		if val == 0 {
-
-			l.Logger(l.ERROR, "DEBUG_SLEEP must be a non-zero number.")
-			os.Exit(1)
-
-		}
-
-		models.Env.DEBUG_SLEEP = time.Duration(val) * time.Second
-
-	} else {
-
-                l.Logger(l.ERROR, "DEBUG_SLEEP environment variable is not set.")
-		os.Exit(1)
-
-        }
+	}
 
 	tmp = os.Getenv("JWT_TOKEN_EXPIRE")
 

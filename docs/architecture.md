@@ -58,7 +58,7 @@ All components fetch their runtime configuration from **JSONAir**, an external c
 
 1. Authenticates to JSONAir using a Personal Access Token (PAT) from the environment.
 2. Downloads its JSON configuration blob.
-3. Starts a background goroutine (`Monitor_Config`) that polls JSONAir on a configurable interval and hot-reloads if the config changes.
+3. Polls JSONAir for reload signals and debug-level changes. On highvolt-server this is the `Monitor_Reload` goroutine (interval set by `RELOAD_SLEEP`, default 60s); when a reload is signalled, the full configuration is re-fetched and applied.
 
 ## Request Lifecycle
 

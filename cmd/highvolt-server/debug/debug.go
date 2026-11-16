@@ -26,8 +26,12 @@ import (
 	"strings"
 	"encoding/json"
 
+	"net/http"
+
 	"github.com/k9io/highvolt/internal/http_req"
 	"github.com/k9io/highvolt/internal/define"
+
+	"github.com/k9io/highvolt/cmd/highvolt-server/auth"
 
 
 	l "github.com/k9io/highvolt/internal/logger"
@@ -146,7 +150,7 @@ func GetDebugLevel( bearerToken string ) (error, string) {
 	debug_url := fmt.Sprintf("%s/api/%s/jsonair/debug", models.Env.JSONAIR_URL, define.JSONAIR_VERSION)
 	json_query := fmt.Sprintf(`{"type":"%s","name":"%s"}`, models.Env.JSONAIR_TYPE, models.Env.JSONAIR_NAME)
 
-	debug_level, _, err = http_req.HTTP(json_query, debug_url, "GET", bearerToken)
+	debug_level, status_code, err := http_req.HTTP(json_query, debug_url, "GET", bearerToken)
 
 	if X.HTTP == true {
 
@@ -157,6 +161,18 @@ func GetDebugLevel( bearerToken string ) (error, string) {
 	if err != nil {
 
 		return fmt.Errorf("http_req.HTTP: %v", err), ""
+
+	}
+
+	if status_code == http.StatusUnauthorized {
+
+		return auth.ErrUnauthorized, ""
+
+	}
+
+	if status_code != http.StatusOK {
+
+		return fmt.Errorf("debug level request returned HTTP %d", status_code), ""
 
 	}
 
